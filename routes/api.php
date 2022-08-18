@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Api\SanctumController;
+use App\Http\Controllers\Api\ShowNameController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -16,4 +18,11 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
+});
+
+Route::POST('/register', [SanctumController::class, 'register']);
+Route::get('/login', [SanctumController::class, 'login']);
+Route::group(['middleware' => ['auth:sanctum']], function(){
+    Route::get('/name', [ShowNameController::class, 'showName']);
+    Route::POST('/logout', [SanctumController::class, 'logout']);
 });
