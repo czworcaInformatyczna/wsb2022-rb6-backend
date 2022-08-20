@@ -9,7 +9,6 @@ use Laravel\Sanctum\Sanctum;
 class ShowNameController extends Controller
 {
     public function showName(request $request){
-        sanctumRefreshTest($request);
         return $request->user()['name'];
     }
 }

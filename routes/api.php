@@ -22,7 +22,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::POST('/register', [SanctumController::class, 'register']);
 Route::get('/login', [SanctumController::class, 'login']);
-Route::group(['middleware' => ['auth:sanctum']], function(){
+Route::group(['middleware' => ['auth:sanctum', 'auth.token:RefreshAccessToken']], function(){
     Route::get('/name', [ShowNameController::class, 'showName']);
     Route::POST('/logout', [SanctumController::class, 'logout']);
 });
