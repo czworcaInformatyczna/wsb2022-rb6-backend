@@ -24,5 +24,5 @@ Route::POST('/register', [SanctumController::class, 'register']);
 Route::get('/login', [SanctumController::class, 'login']);
 Route::group(['middleware' => ['auth:sanctum', 'auth.token:RefreshAccessToken']], function(){
     Route::get('/name', [ShowNameController::class, 'showName']);
-    Route::POST('/logout', [SanctumController::class, 'logout']);
 });
+Route::POST('/logout', [SanctumController::class, 'logout'])->middleware(['auth:sanctum']);
