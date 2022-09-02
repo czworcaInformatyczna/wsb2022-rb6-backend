@@ -1,7 +1,10 @@
 <?php
 
+use App\Http\Controllers\Api\CookiesController;
+use App\Http\Controllers\api\LanguagesController;
 use App\Http\Controllers\Api\SanctumController;
 use App\Http\Controllers\Api\ShowNameController;
+use App\Http\Controllers\api\ThemesController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -24,5 +27,9 @@ Route::POST('/register', [SanctumController::class, 'register']);
 Route::get('/login', [SanctumController::class, 'login']);
 Route::group(['middleware' => ['auth:sanctum', 'auth.token:RefreshAccessToken']], function(){
     Route::get('/name', [ShowNameController::class, 'showName']);
+    Route::patch('/themes', [CookiesController::class, 'patchThemes']);
+    Route::patch('/languages', [CookiesController::class, 'patchLanguages']);
 });
 Route::POST('/logout', [SanctumController::class, 'logout'])->middleware(['auth:sanctum']);
+Route::GET('/themes', [ThemesController::class, 'get']);
+Route::GET('/languages', [LanguagesController::class, 'get']);

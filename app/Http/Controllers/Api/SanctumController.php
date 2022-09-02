@@ -26,12 +26,17 @@ class SanctumController extends Controller
             'email' => $request['email'],
             'password' => Hash::make($request['password'])
         ]);
-
+        
+        create_cookie($user->id);
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
+            'name' => $user->name,
+            'email' => $user->email, 
             'access_token' => $token,
             'token_type' => 'Bearer',
+            'theme_id' => $user->cookie->theme->id,
+            'language_id' => $user->cookie->language->id,
         ]);
     }
 
@@ -45,12 +50,14 @@ class SanctumController extends Controller
         $user = User::where('email', $request['email'])->firstOrFail();
         auth()->user()->tokens()->delete();
         $token = $user->createToken('auth_token')->plainTextToken;
-        
+        create_cookie($user->id);
         return response()->json([
             'name' => $user->name,
             'email' => $user->email, 
             'access_token' => $token,
             'token_type' => 'Bearer',
+            'theme_id' => $user->cookie->theme->id,
+            'language_id' => $user->cookie->language->id,
         ]);
     }
 
