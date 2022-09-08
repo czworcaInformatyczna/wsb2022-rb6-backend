@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\ShowNameController;
 use App\Http\Controllers\api\ThemesController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Laravel\Sanctum\Sanctum;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,6 +31,8 @@ Route::group(['middleware' => ['auth:sanctum', 'auth.token:RefreshAccessToken']]
     Route::patch('/themes', [CookiesController::class, 'patchThemes']);
     Route::patch('/languages', [CookiesController::class, 'patchLanguages']);
 });
+Route::POST('/forgotpassword', [SanctumController::class, 'forgotPassword']);
+Route::get('/resetpassword', [SanctumController::class, 'resetPassword']);
 Route::POST('/logout', [SanctumController::class, 'logout'])->middleware(['auth:sanctum']);
 Route::GET('/themes', [ThemesController::class, 'get']);
 Route::GET('/languages', [LanguagesController::class, 'get']);
