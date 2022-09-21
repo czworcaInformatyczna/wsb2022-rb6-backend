@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\AssetManufacturer;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateAssetManufacturerRequest extends FormRequest
 {
@@ -24,7 +26,12 @@ class UpdateAssetManufacturerRequest extends FormRequest
     public function rules()
     {
         return [
-            "name" => "string|min:3|max:256|unique:asset_manufacturers,name"
+            "name" => [
+                "string",
+                "min:3",
+                "max:256",
+                Rule::unique('asset_manufacturers', 'name')->ignore($this->route('asset_manufacturer')['id'])
+            ]
         ];
     }
 }
