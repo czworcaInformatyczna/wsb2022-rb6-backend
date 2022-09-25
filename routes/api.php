@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\SanctumController;
 use App\Http\Controllers\Api\ShowNameController;
 use App\Http\Controllers\AssetCategoryController;
 use App\Http\Controllers\AssetManufacturerController;
+use App\Http\Controllers\AssetModelController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -28,5 +29,6 @@ Route::group(['middleware' => ['auth:sanctum', 'auth.token:RefreshAccessToken']]
     Route::get('/name', [ShowNameController::class, 'showName']);
     Route::apiResource('asset_category', AssetCategoryController::class);
     Route::apiResource('asset_manufacturer', AssetManufacturerController::class);
+    Route::apiResource('asset_model', AssetModelController::class);
 });
 Route::POST('/logout', [SanctumController::class, 'logout'])->middleware(['auth:sanctum']);
