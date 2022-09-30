@@ -25,14 +25,23 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::POST('/register', [SanctumController::class, 'register']);
-Route::get('/login', [SanctumController::class, 'login']);
+
+
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+    return $request->user();
+});
+
+Route::POST('/login', [SanctumController::class, 'login']);
+
+
 Route::group(['middleware' => ['auth:sanctum', 'auth.token:RefreshAccessToken']], function(){
-    Route::get('/name', [ShowNameController::class, 'showName']);
-    Route::patch('/themes', [CookiesController::class, 'patchThemes']);
-    Route::patch('/languages', [CookiesController::class, 'patchLanguages']);
+    Route::GET('/name', [ShowNameController::class, 'showName']);
+    Route::PATCH('/changepassword', [SanctumController::class, 'changePassword']);
+    Route::PATCH('/themes', [CookiesController::class, 'patchThemes']);
+    Route::PATCH('/languages', [CookiesController::class, 'patchLanguages']);
 });
 Route::POST('/forgotpassword', [SanctumController::class, 'forgotPassword']);
-Route::get('/resetpassword', [SanctumController::class, 'resetPassword']);
+Route::PATCH('/resetpassword', [SanctumController::class, 'resetPassword']);
 Route::POST('/logout', [SanctumController::class, 'logout'])->middleware(['auth:sanctum']);
 Route::GET('/themes', [ThemesController::class, 'get']);
 Route::GET('/languages', [LanguagesController::class, 'get']);
