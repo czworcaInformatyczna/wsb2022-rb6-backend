@@ -26,7 +26,9 @@ class SanctumController extends Controller
             'password' => 'required|string|confirmed'
         ]);
         if($validator->fails()){
-            return response()->json(['errors' => $validator->errors()]);
+            return response()->json(
+                ['errors' => $validator->errors()]
+            ,400);
         }
         $user = User::create([
             'name' => $request['name'],
@@ -49,6 +51,15 @@ class SanctumController extends Controller
 
     public function login(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required',
+            'password' => 'required'
+        ]);
+        if($validator->fails()){
+            return response()->json(
+                ['errors' => $validator->errors()]
+            ,400);
+        }
         if (!Auth::attempt($request->only('email', 'password'))) {
             return response()->json([
             'message' => 'Invalid login details'
@@ -68,6 +79,24 @@ class SanctumController extends Controller
         ]);
     }
 
+    public function changePassword(Request $request){
+
+        $validator = Validator::make($request->all(), [
+            'password' => 'required|string|confirmed'
+        ]);
+        if($validator->fails()){
+            return response()->json(
+                ['errors' => $validator->errors()]
+            ,400);
+        }
+        $request->user()['password'] = Hash::make($request['password']);
+        $request->user()->save();
+
+        return response([
+            'message' => 'Password has been changed'
+        ]);
+    }
+
     public function logout()
     {
         auth()->user()->tokens()->delete();
@@ -78,7 +107,15 @@ class SanctumController extends Controller
     }
 
     public function forgotPassword(Request $request){
-        //He forgor 💀
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email'
+        ]);
+        if($validator->fails()){
+            return response()->json(
+                ['errors' => $validator->errors()]
+            ,400);
+        }
+
         if(User::where('email', $request->email)->first()){
             $token = Str::random(30);
             PasswordReset::where('email', $request->email)->delete();
@@ -102,7 +139,9 @@ class SanctumController extends Controller
             'password' => 'required|string|confirmed'
         ]);
         if($validator->fails()){
-            return response()->json(['errors' => $validator->errors()]);
+            return response()->json(
+                ['errors' => $validator->errors()]
+            ,400);
         }
         $passwordReset = PasswordReset::where('email', $request->email)->first();
         if($passwordReset == NULL){
