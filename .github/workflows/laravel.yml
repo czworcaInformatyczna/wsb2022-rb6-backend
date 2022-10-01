@@ -31,7 +31,7 @@ jobs:
         DB_DATABASE: mysql_testing
       run: |
         sudo /etc/init.d/mysql start
-        mysql -e 'CREATE DATABASE database;' -u root -p root
+        mysql -e 'CREATE DATABASE database;' -u root -p
     - name: Execute tests (Unit and Feature tests) via PHPUnit
       env:
         DB_CONNECTION: mysql
