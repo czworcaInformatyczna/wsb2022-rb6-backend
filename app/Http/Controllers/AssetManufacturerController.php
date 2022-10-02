@@ -36,8 +36,10 @@ class AssetManufacturerController extends Controller
     public function store(StoreAssetManufacturerRequest $request)
     {
         $manufacturer = new AssetManufacturer($request->validated());
+        $saved = $manufacturer->save();
         return response()->json([
-            "result" => $manufacturer->save()
+            "result" => $saved,
+            "model" => $saved ? $manufacturer : null
         ]);
     }
 

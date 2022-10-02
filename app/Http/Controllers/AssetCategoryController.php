@@ -36,7 +36,11 @@ class AssetCategoryController extends Controller
     public function store(StoreAssetCategoryRequest $request)
     {
         $category = new AssetCategory($request->validated());
-        return $category->save();
+        $saved = $category->save();
+        return response()->json([
+            "result" => $saved,
+            "model" => $saved ? $category : null
+        ]);
     }
 
     /**
