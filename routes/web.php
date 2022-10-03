@@ -16,3 +16,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+Route::get('/resetpassword', function() {
+    return "For now there isn't anything there. <br>
+    For actual password reset use /api/resetpassword endpoint";
+});

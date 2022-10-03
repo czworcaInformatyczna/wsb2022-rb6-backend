@@ -41,4 +41,8 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function cookie(){
+        return $this->hasOne(Cookie::class, 'user_id', 'id');
+    }
 }
