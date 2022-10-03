@@ -4,6 +4,9 @@ use App\Http\Controllers\Api\CookiesController;
 use App\Http\Controllers\api\LanguagesController;
 use App\Http\Controllers\Api\SanctumController;
 use App\Http\Controllers\Api\ShowNameController;
+use App\Http\Controllers\AssetCategoryController;
+use App\Http\Controllers\AssetManufacturerController;
+use App\Http\Controllers\AssetModelController;
 use App\Http\Controllers\api\ThemesController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -26,7 +29,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::POST('/register', [SanctumController::class, 'register']);
 
-
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
@@ -39,6 +41,9 @@ Route::group(['middleware' => ['auth:sanctum', 'auth.token:RefreshAccessToken']]
     Route::PATCH('/changepassword', [SanctumController::class, 'changePassword']);
     Route::PATCH('/themes', [CookiesController::class, 'patchThemes']);
     Route::PATCH('/languages', [CookiesController::class, 'patchLanguages']);
+    Route::apiResource('asset_category', AssetCategoryController::class);
+    Route::apiResource('asset_manufacturer', AssetManufacturerController::class);
+    Route::apiResource('asset_model', AssetModelController::class);
 });
 Route::POST('/forgotpassword', [SanctumController::class, 'forgotPassword']);
 Route::PATCH('/resetpassword', [SanctumController::class, 'resetPassword']);
