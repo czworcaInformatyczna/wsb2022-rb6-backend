@@ -49,15 +49,16 @@ class AssetManufacturerTest extends TestCase
             "name" => $name
         ]);
 
-        $latest = AssetManufacturer::latest()->first();
 
         $response
-            ->assertStatus(200)
-            ->assertJson([
-                'result' => true
-            ]);
+        ->assertStatus(200)
+        ->assertJson([
+            'result' => true
+        ]);
 
-        $this->assertTrue($latest->name == $name);
+        $added = AssetManufacturer::where('id', $response->json()['model']['id'])->first();
+
+        $this->assertTrue($added->name == $name);
     }
 
     /** @test */
