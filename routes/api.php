@@ -1,13 +1,13 @@
 <?php
 
 use App\Http\Controllers\Api\CookiesController;
-use App\Http\Controllers\api\LanguagesController;
+use App\Http\Controllers\Api\LanguagesController;
 use App\Http\Controllers\Api\SanctumController;
 use App\Http\Controllers\Api\ShowNameController;
 use App\Http\Controllers\AssetCategoryController;
 use App\Http\Controllers\AssetManufacturerController;
 use App\Http\Controllers\AssetModelController;
-use App\Http\Controllers\api\ThemesController;
+use App\Http\Controllers\Api\ThemesController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Laravel\Sanctum\Sanctum;
