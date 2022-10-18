@@ -45,4 +45,5 @@ class User extends Authenticatable
     public function cookie(){
         return $this->hasOne(Cookie::class, 'user_id', 'id');
     }
+
 }

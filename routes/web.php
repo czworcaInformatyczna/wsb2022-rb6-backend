@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\CookiesController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -20,3 +21,4 @@ Route::get('/resetpassword', function() {
     return "For now there isn't anything there. <br>
     For actual password reset use /api/resetpassword endpoint";
 });
+Route::get('nulltest', [CookiesController::class, 'nullTest']);

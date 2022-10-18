@@ -36,7 +36,7 @@ class SanctumController extends Controller
             'password' => Hash::make($request['password'])
         ]);
         
-        create_cookie($user->id);
+        app('App\Http\Controllers\Api\CookiesController')->createCookie($user->id);
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
@@ -66,9 +66,11 @@ class SanctumController extends Controller
             ], 401);
         }
         $user = User::where('email', $request['email'])->firstOrFail();
+
         auth()->user()->tokens()->delete();
+
         $token = $user->createToken('auth_token')->plainTextToken;
-        create_cookie($user->id);
+        app('App\Http\Controllers\Api\CookiesController')->createCookie($user->id);
         return response()->json([
             'name' => $user->name,
             'email' => $user->email, 
@@ -161,6 +163,8 @@ class SanctumController extends Controller
         }
         User::where('email', $request->email)->update(['password' => Hash::make($request->password)]);
         PasswordReset::where('email', $request->email)->delete();
-        return "działa";
+        return response([
+            'message' => 'Success'
+        ],200);
     }
 }
