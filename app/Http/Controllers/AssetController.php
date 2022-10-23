@@ -49,6 +49,17 @@ class AssetController extends Controller
 
         // Create model
         $asset = new Asset($validated);
+
+        if ($asset->must_have_holder() && !$asset->current_holder_id) {
+            return response()->json([
+                "message" => "Asset must have a holder with current status"
+            ], 400);
+        }
+
+        if ($asset->can_have_holder() == false && $asset->current_holder_id) {
+            $asset->current_holder_id = null;
+        }
+
         $saved = $asset->save();
 
         return response()->json([
@@ -86,6 +97,17 @@ class AssetController extends Controller
             $validated['image'] = $this->parse_image($validated['image']);
         }
         $asset->fill($validated);
+
+        if ($asset->must_have_holder() && !$asset->current_holder_id) {
+            return response()->json([
+                "message" => "Asset must have a holder with current status"
+            ], 400);
+        }
+
+        if ($asset->can_have_holder() == false && $asset->current_holder_id) {
+            $asset->current_holder_id = null;
+        }
+
         $asset->save();
         return response()->json([
             "result" => "success",

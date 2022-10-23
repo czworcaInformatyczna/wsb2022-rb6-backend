@@ -35,7 +35,7 @@ class StoreAssetRequest extends FormRequest
                 'required',
                 new Enum(AssetStatus::class)
             ],
-            'current_holder_id' => 'integer|exists:users,id'
+            'current_holder_id' => 'integer|nullable|exists:users,id'
         ];
     }
 }
