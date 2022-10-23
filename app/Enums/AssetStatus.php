@@ -5,6 +5,7 @@ namespace App\Enums;
 enum AssetStatus: int
 {
     case Archived = 0;
+    case Serviced = 25;
     case Ready = 50;
     case HandedOver = 100;
 
