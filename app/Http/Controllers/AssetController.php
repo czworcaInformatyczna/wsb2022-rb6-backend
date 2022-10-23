@@ -9,6 +9,7 @@ use App\Http\Requests\UpdateAssetRequest;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class AssetController extends Controller
 {
@@ -124,6 +125,11 @@ class AssetController extends Controller
     public function destroy(Asset $asset)
     {
         return $asset->delete();
+    }
+
+    public function qr_code(Asset $asset)
+    {
+        return QrCode::errorCorrection('H')->size(300)->generate($asset->tag);
     }
 
     public static function parse_image($image): string
