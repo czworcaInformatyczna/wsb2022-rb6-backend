@@ -17,7 +17,12 @@ class Asset extends Model
         'image',
         'serial',
         'status',
-        'current_holder_id'
+        'current_holder_id',
+        'notes',
+        'warranty',
+        'purchase_date',
+        'order_number',
+        'price'
     ];
 
     protected $with = [
@@ -26,7 +31,8 @@ class Asset extends Model
     ];
 
     protected $casts = [
-        'status' => AssetStatus::class
+        'status' => AssetStatus::class,
+        'purchase_date' => 'datetime:Y-m-d'
     ];
 
     public function asset_model()

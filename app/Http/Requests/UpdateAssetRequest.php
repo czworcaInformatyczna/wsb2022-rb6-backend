@@ -43,7 +43,12 @@ class UpdateAssetRequest extends FormRequest
             'status' => [
                 new Enum(AssetStatus::class)
             ],
-            'current_holder_id' => 'integer|nullable|exists:users,id'
+            'current_holder_id' => 'integer|nullable|exists:users,id',
+            'notes' => 'string|nullable|max:1020',
+            'warranty' => 'integer|nullable|min:0|max:10000',
+            'purchase_date' => 'date|nullable',
+            'order_number' => 'string|nullable|max:250',
+            'price' => 'numeric|nullable|max:99999999'
         ];
     }
 }
