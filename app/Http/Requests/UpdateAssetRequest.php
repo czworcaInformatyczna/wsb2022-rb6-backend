@@ -42,7 +42,8 @@ class UpdateAssetRequest extends FormRequest
             'serial' => 'string|min:1|max:250',
             'status' => [
                 new Enum(AssetStatus::class)
-            ]
+            ],
+            'current_holder_id' => 'integer|exists:users,id'
         ];
     }
 }

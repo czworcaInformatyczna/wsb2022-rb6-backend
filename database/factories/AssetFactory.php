@@ -5,6 +5,7 @@ namespace Database\Factories;
 use App\Enums\AssetStatus;
 use App\Http\Controllers\AssetController;
 use App\Models\AssetModel;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
@@ -32,6 +33,7 @@ class AssetFactory extends Factory
     public function definition()
     {
         $image = rand(1,99) > 70 ? null : AssetController::parse_image(Arr::random(AssetFactory::$sampleImages));
+        $user = rand(1,99) > 70 ? null : User::inRandomOrder()->first();
         $assetModel = AssetModel::inRandomOrder()->first();
         return [
             'name' => $this->faker->words(3, true),
@@ -39,7 +41,8 @@ class AssetFactory extends Factory
             'asset_model_id' => $assetModel->id,
             'image' => $image,
             'serial' => $this->faker->bothify('?????-#####'),
-            'status' => AssetStatus::values()[array_rand(AssetStatus::values())]
+            'status' => AssetStatus::values()[array_rand(AssetStatus::values())],
+            'current_holder_id' => $user
         ];
     }
 
