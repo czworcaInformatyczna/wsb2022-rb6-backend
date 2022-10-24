@@ -7,6 +7,7 @@ use App\Models\Asset;
 use App\Http\Requests\StoreAssetRequest;
 use App\Http\Requests\UpdateAssetRequest;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
@@ -27,9 +28,12 @@ class AssetController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return Asset::all();
+        $validated = $request->validate([
+            'per_page' => 'integer|nullable|min:2|max:30'
+        ]);
+        return Asset::paginate($validated['per_page'] ?? 10);
     }
 
     /**
