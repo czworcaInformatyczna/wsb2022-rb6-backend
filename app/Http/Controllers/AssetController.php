@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\AssetStatus;
 use App\Models\Asset;
 use App\Http\Requests\StoreAssetRequest;
 use App\Http\Requests\UpdateAssetRequest;
@@ -9,6 +10,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rules\Enum;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class AssetController extends Controller
@@ -31,20 +33,33 @@ class AssetController extends Controller
     {
         $validated = $request->validate([
             'per_page' => 'integer|nullable|min:2|max:30',
-            'search' => 'string|nullable|min:3|max:30'
+            'search' => 'string|nullable|min:3|max:30',
+            'status' => [
+                'integer',
+                new Enum(AssetStatus::class)
+            ]
         ]);
+
         $asset = Asset::query();
-        if($validated['search'] ?? false) {
-            $asset = $asset->orWhere('name', 'like', "%{$validated['search']}%");
-            $asset = $asset->orWhere('tag', 'like', "%{$validated['search']}%");
-            $asset = $asset->orWhere('serial', 'like', "%{$validated['search']}%");
-            $asset = $asset->orWhere('notes', 'like', "%{$validated['search']}%");
-            $asset = $asset->orWhere('order_number', 'like', "%{$validated['search']}%");
-            $asset = $asset->orWhereRelation('asset_model', 'name', 'like', "%{$validated['search']}%");
-            $asset = $asset->orWhereRelation('asset_model.category', 'name', 'like', "%{$validated['search']}%");
-            $asset = $asset->orWhereRelation('asset_model.manufacturer', 'name', 'like', "%{$validated['search']}%");
-            $asset = $asset->orWhereRelation('current_holder', 'name', 'like', "%{$validated['search']}%");
+
+        if ($validated['search'] ?? false) {
+            $asset = $asset->where(function ($query) use ($validated) {
+                $query->Where('name', 'like', "%{$validated['search']}%")
+                    ->orWhere('tag', 'like', "%{$validated['search']}%")
+                    ->orWhere('serial', 'like', "%{$validated['search']}%")
+                    ->orWhere('notes', 'like', "%{$validated['search']}%")
+                    ->orWhere('order_number', 'like', "%{$validated['search']}%")
+                    ->orWhereRelation('asset_model', 'name', 'like', "%{$validated['search']}%")
+                    ->orWhereRelation('asset_model.category', 'name', 'like', "%{$validated['search']}%")
+                    ->orWhereRelation('asset_model.manufacturer', 'name', 'like', "%{$validated['search']}%")
+                    ->orWhereRelation('current_holder', 'name', 'like', "%{$validated['search']}%");
+            });
         }
+
+        if ($validated['status'] !== null) {
+            $asset = $asset->where('status', $validated['status']);
+        }
+
         return $asset->paginate($validated['per_page'] ?? 10);
     }
 
