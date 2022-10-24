@@ -18,7 +18,7 @@ return new class extends Migration
             $table->integer('warranty', false, true)->nullable();
             $table->date('purchase_date')->nullable();
             $table->string('order_number', 256)->nullable();
-            $table->decimal('price', 9, 3, false)->nullable();
+            $table->decimal('price', 9, 2, false)->nullable();
         });
     }
 
