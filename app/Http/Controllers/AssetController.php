@@ -43,6 +43,7 @@ class AssetController extends Controller
         $asset = Asset::query();
 
         if ($validated['search'] ?? false) {
+            // This separated so it doesn't colide with status check
             $asset = $asset->where(function ($query) use ($validated) {
                 $query->Where('name', 'like', "%{$validated['search']}%")
                     ->orWhere('tag', 'like', "%{$validated['search']}%")
@@ -56,7 +57,7 @@ class AssetController extends Controller
             });
         }
 
-        if ($validated['status'] !== null) {
+        if (($validated['status'] ?? null) !== null) {
             $asset = $asset->where('status', $validated['status']);
         }
 
