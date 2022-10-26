@@ -33,7 +33,7 @@ class AssetFactory extends Factory
     public function definition()
     {
         $image = rand(1,99) > 70 ? null : AssetController::parse_image(Arr::random(AssetFactory::$sampleImages));
-        $user = rand(1,99) > 70 ? null : User::inRandomOrder()->first();
+        $user = rand(1,99) > 70 ? null : User::inRandomOrder()->first()->id;
         $assetModel = AssetModel::inRandomOrder()->first();
         return [
             'name' => $this->faker->words(3, true),
@@ -42,7 +42,12 @@ class AssetFactory extends Factory
             'image' => $image,
             'serial' => $this->faker->bothify('?????-#####'),
             'status' => AssetStatus::values()[array_rand(AssetStatus::values())],
-            'current_holder_id' => $user
+            'current_holder_id' => $user,
+            'notes' => rand(1,99) > 50 ? null : $this->faker->text(1000),
+            'warranty' => rand(1,99) > 50 ? null : $this->faker->numberBetween(1,24),
+            'purchase_date' => rand(1,99) > 50 ? null : $this->faker->date(),
+            'order_number' => rand(1,99) > 50 ? null : $this->faker->text(250),
+            'price' => rand(1,99) > 50 ? null : floatval($this->faker->numberBetween(1, 10000)) * 1.5
         ];
     }
 
