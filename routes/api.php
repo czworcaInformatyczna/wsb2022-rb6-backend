@@ -8,6 +8,7 @@ use App\Http\Controllers\AssetCategoryController;
 use App\Http\Controllers\AssetManufacturerController;
 use App\Http\Controllers\AssetModelController;
 use App\Http\Controllers\Api\ThemesController;
+use App\Http\Controllers\AssetController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Laravel\Sanctum\Sanctum;
@@ -44,6 +45,9 @@ Route::group(['middleware' => ['auth:sanctum', 'auth.token:RefreshAccessToken']]
     Route::apiResource('asset_category', AssetCategoryController::class);
     Route::apiResource('asset_manufacturer', AssetManufacturerController::class);
     Route::apiResource('asset_model', AssetModelController::class);
+
+    Route::get('/asset/{asset}/qr', [AssetController::class, 'qr_code']);
+    Route::apiResource('asset', AssetController::class);
 });
 Route::POST('/forgotpassword', [SanctumController::class, 'forgotPassword']);
 Route::PATCH('/resetpassword', [SanctumController::class, 'resetPassword']);
