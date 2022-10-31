@@ -2,11 +2,11 @@
 
 namespace App\Http\Requests;
 
-use App\Models\AssetManufacturer;
+use App\Models\Manufacturer;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class UpdateAssetManufacturerRequest extends FormRequest
+class UpdateManufacturerRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -30,7 +30,7 @@ class UpdateAssetManufacturerRequest extends FormRequest
                 "string",
                 "min:3",
                 "max:256",
-                Rule::unique('asset_manufacturers', 'name')->ignore($this->route('asset_manufacturer')['id'])
+                Rule::unique('manufacturers', 'name')->ignore($this->route('manufacturer')['id'])
             ]
         ];
     }

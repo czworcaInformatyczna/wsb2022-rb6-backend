@@ -5,7 +5,7 @@ use App\Http\Controllers\Api\LanguagesController;
 use App\Http\Controllers\Api\SanctumController;
 use App\Http\Controllers\Api\ShowNameController;
 use App\Http\Controllers\AssetCategoryController;
-use App\Http\Controllers\AssetManufacturerController;
+use App\Http\Controllers\ManufacturerController;
 use App\Http\Controllers\AssetModelController;
 use App\Http\Controllers\Api\ThemesController;
 use App\Http\Controllers\AssetController;
@@ -43,8 +43,8 @@ Route::group(['middleware' => ['auth:sanctum', 'auth.token:RefreshAccessToken']]
     Route::PATCH('/themes', [CookiesController::class, 'patchThemes']);
     Route::PATCH('/languages', [CookiesController::class, 'patchLanguages']);
     Route::apiResource('asset_category', AssetCategoryController::class);
-    Route::apiResource('asset_manufacturer', AssetManufacturerController::class);
     Route::apiResource('asset_model', AssetModelController::class);
+    Route::apiResource('manufacturer', ManufacturerController::class);
 
     Route::get('/asset/{asset}/qr', [AssetController::class, 'qr_code']);
     Route::apiResource('asset', AssetController::class);

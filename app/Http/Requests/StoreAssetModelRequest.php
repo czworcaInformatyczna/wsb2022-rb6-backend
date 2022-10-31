@@ -26,7 +26,7 @@ class StoreAssetModelRequest extends FormRequest
         return [
             'name' => 'required|string|min:3|max:255|unique:asset_models,name',
             'asset_category_id' => 'required|numeric|integer|exists:asset_categories,id',
-            'asset_manufacturer_id' => 'required|numeric|integer|exists:asset_manufacturers,id'
+            'manufacturer_id' => 'required|numeric|integer|exists:manufacturers,id'
         ];
     }
 }

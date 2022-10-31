@@ -2,11 +2,11 @@
 
 namespace App\Policies;
 
-use App\Models\AssetManufacturer;
+use App\Models\Manufacturer;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
-class AssetManufacturerPolicy
+class ManufacturerPolicy
 {
     use HandlesAuthorization;
 
@@ -25,10 +25,10 @@ class AssetManufacturerPolicy
      * Determine whether the user can view the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\AssetManufacturer  $assetManufacturer
+     * @param  \App\Models\Manufacturer  $manufacturer
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function view(User $user, AssetManufacturer $assetManufacturer)
+    public function view(User $user, Manufacturer $manufacturer)
     {
         return true;
     }
@@ -48,10 +48,10 @@ class AssetManufacturerPolicy
      * Determine whether the user can update the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\AssetManufacturer  $assetManufacturer
+     * @param  \App\Models\Manufacturer  $manufacturer
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function update(User $user, AssetManufacturer $assetManufacturer)
+    public function update(User $user, Manufacturer $manufacturer)
     {
         return true;
     }
@@ -60,10 +60,10 @@ class AssetManufacturerPolicy
      * Determine whether the user can delete the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\AssetManufacturer  $assetManufacturer
+     * @param  \App\Models\Manufacturer  $manufacturer
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function delete(User $user, AssetManufacturer $assetManufacturer)
+    public function delete(User $user, Manufacturer $manufacturer)
     {
         return true;
     }
@@ -72,10 +72,10 @@ class AssetManufacturerPolicy
      * Determine whether the user can restore the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\AssetManufacturer  $assetManufacturer
+     * @param  \App\Models\Manufacturer  $manufacturer
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function restore(User $user, AssetManufacturer $assetManufacturer)
+    public function restore(User $user, Manufacturer $manufacturer)
     {
         return true;
     }
@@ -84,10 +84,10 @@ class AssetManufacturerPolicy
      * Determine whether the user can permanently delete the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\AssetManufacturer  $assetManufacturer
+     * @param  \App\Models\Manufacturer  $manufacturer
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function forceDelete(User $user, AssetManufacturer $assetManufacturer)
+    public function forceDelete(User $user, Manufacturer $manufacturer)
     {
         return true;
     }

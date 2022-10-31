@@ -3,7 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\AssetCategory;
-use App\Models\AssetManufacturer;
+use App\Models\Manufacturer;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -20,11 +20,11 @@ class AssetModelFactory extends Factory
     public function definition()
     {
         $category = AssetCategory::inRandomOrder()->first();
-        $manufacturer = AssetManufacturer::inRandomOrder()->first();
+        $manufacturer = Manufacturer::inRandomOrder()->first();
         return [
             'name' => Str::ucfirst($this->faker->unique()->words(2, true)),
             'asset_category_id' => $category->id,
-            'asset_manufacturer_id' => $manufacturer->id
+            'manufacturer_id' => $manufacturer->id
         ];
     }
 }
