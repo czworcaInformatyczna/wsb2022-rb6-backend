@@ -20,7 +20,7 @@ return new class extends Migration
             // Category
             $table->foreignId('asset_category_id')->references('id')->on('asset_categories')->cascadeOnUpdate()->cascadeOnDelete();
             // Manufacturer
-            $table->foreignId('manufacturer_id')->references('id')->on('manufacturers')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('asset_manufacturer_id')->references('id')->on('asset_manufacturers')->cascadeOnUpdate()->cascadeOnDelete();
         });
     }
 
