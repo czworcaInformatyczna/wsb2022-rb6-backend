@@ -2,11 +2,11 @@
 
 namespace Database\Seeders;
 
-use App\Models\AssetManufacturer;
+use App\Models\Manufacturer;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
-class AssetManufacturerSeeder extends Seeder
+class ManufacturerSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -15,6 +15,6 @@ class AssetManufacturerSeeder extends Seeder
      */
     public function run()
     {
-        AssetManufacturer::factory()->count(10)->create();
+        Manufacturer::factory()->count(10)->create();
     }
 }

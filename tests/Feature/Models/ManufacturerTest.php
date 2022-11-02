@@ -14,19 +14,13 @@ use Illuminate\Testing\Fluent\AssertableJson;
 
 class ManufacturerTest extends TestCase
 {
-    public User $user;
-    public function setUp(): void
-    {
-        parent::setUp();
-        $this->user = User::factory()->create();
-    }
     /** @test */
     public function check_index()
     {
 
         Manufacturer::factory()->create();
 
-        $response = $this->actingAs($this->user)->get('/api/manufacturer');
+        $response = $this->actingAs(self::getRandomUser())->get('/api/manufacturer');
         $response
             ->assertStatus(200)
             ->assertJson(
@@ -45,16 +39,15 @@ class ManufacturerTest extends TestCase
     public function check_store()
     {
         $name = Factory::create()->words(2, true);
-        $response = $this->actingAs($this->user)->post('/api/manufacturer', [
+        $response = $this->actingAs(self::getRandomUser())->post('/api/manufacturer', [
             "name" => $name
         ]);
 
-
         $response
-        ->assertStatus(200)
-        ->assertJson([
-            'result' => true
-        ]);
+            ->assertStatus(200)
+            ->assertJson([
+                'result' => true
+            ]);
 
         $added = Manufacturer::where('id', $response->json()['model']['id'])->first();
 
@@ -66,7 +59,7 @@ class ManufacturerTest extends TestCase
     {
         $manufacturer = Manufacturer::factory()->create();
 
-        $response = $this->actingAs($this->user)->get('/api/manufacturer/' . $manufacturer->id);
+        $response = $this->actingAs(self::getRandomUser())->get('/api/manufacturer/' . $manufacturer->id);
 
         $response
             ->assertStatus(200)
@@ -84,7 +77,7 @@ class ManufacturerTest extends TestCase
         $manufacturer = Manufacturer::factory()->create();
         $new_name = Factory::create()->words(2, true);
 
-        $response = $this->actingAs($this->user)->patch('/api/manufacturer/' . $manufacturer->id, [
+        $response = $this->actingAs(self::getRandomUser())->patch('/api/manufacturer/' . $manufacturer->id, [
             'name' => $new_name
         ]);
 
@@ -107,7 +100,7 @@ class ManufacturerTest extends TestCase
         $manufacturer = Manufacturer::factory()->create();
         $manufacturer_id = $manufacturer->id;
 
-        $response = $this->actingAs($this->user)->delete('/api/manufacturer/' . $manufacturer->id);
+        $response = $this->actingAs(self::getRandomUser())->delete('/api/manufacturer/' . $manufacturer->id);
 
         $response
             ->assertStatus(200)
