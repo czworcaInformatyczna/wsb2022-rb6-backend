@@ -33,16 +33,16 @@ class AssetFactory extends Factory
     public function definition()
     {
         $image = rand(1,99) > 70 ? null : AssetController::parse_image(Arr::random(AssetFactory::$sampleImages));
-        $user = rand(1,99) > 70 ? null : User::inRandomOrder()->first()->id;
-        $assetModel = AssetModel::inRandomOrder()->first();
+        $userId = rand(1,99) > 70 ? null : User::inRandomOrder()->first()->id;
+        $assetModelId = AssetModel::inRandomOrder()->first()->id;
         return [
             'name' => $this->faker->words(3, true),
             'tag' => $this->faker->bothify('?????-#####'),
-            'asset_model_id' => $assetModel->id,
+            'asset_model_id' => $assetModelId,
             'image' => $image,
             'serial' => $this->faker->bothify('?????-#####'),
             'status' => AssetStatus::values()[array_rand(AssetStatus::values())],
-            'current_holder_id' => $user,
+            'current_holder_id' => $userId,
             'notes' => rand(1,99) > 50 ? null : $this->faker->text(1000),
             'warranty' => rand(1,99) > 50 ? null : $this->faker->numberBetween(1,24),
             'purchase_date' => rand(1,99) > 50 ? null : $this->faker->date(),

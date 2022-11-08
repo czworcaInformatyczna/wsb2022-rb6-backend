@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Models;
 
-use App\Models\AssetManufacturer;
+use App\Models\Manufacturer;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
@@ -12,21 +12,15 @@ use Faker\Factory;
 use Illuminate\Support\Str;
 use Illuminate\Testing\Fluent\AssertableJson;
 
-class AssetManufacturerTest extends TestCase
+class ManufacturerTest extends TestCase
 {
-    public User $user;
-    public function setUp(): void
-    {
-        parent::setUp();
-        $this->user = User::factory()->create();
-    }
     /** @test */
     public function check_index()
     {
 
-        AssetManufacturer::factory()->create();
+        Manufacturer::factory()->create();
 
-        $response = $this->actingAs($this->user)->get('/api/asset_manufacturer');
+        $response = $this->actingAs(self::getRandomUser())->get('/api/manufacturer');
         $response
             ->assertStatus(200)
             ->assertJson(
@@ -45,18 +39,17 @@ class AssetManufacturerTest extends TestCase
     public function check_store()
     {
         $name = Factory::create()->words(2, true);
-        $response = $this->actingAs($this->user)->post('/api/asset_manufacturer', [
+        $response = $this->actingAs(self::getRandomUser())->post('/api/manufacturer', [
             "name" => $name
         ]);
 
-
         $response
-        ->assertStatus(200)
-        ->assertJson([
-            'result' => true
-        ]);
+            ->assertStatus(200)
+            ->assertJson([
+                'result' => true
+            ]);
 
-        $added = AssetManufacturer::where('id', $response->json()['model']['id'])->first();
+        $added = Manufacturer::where('id', $response->json()['model']['id'])->first();
 
         $this->assertTrue($added->name == $name);
     }
@@ -64,9 +57,9 @@ class AssetManufacturerTest extends TestCase
     /** @test */
     public function check_show()
     {
-        $manufacturer = AssetManufacturer::factory()->create();
+        $manufacturer = Manufacturer::factory()->create();
 
-        $response = $this->actingAs($this->user)->get('/api/asset_manufacturer/' . $manufacturer->id);
+        $response = $this->actingAs(self::getRandomUser())->get('/api/manufacturer/' . $manufacturer->id);
 
         $response
             ->assertStatus(200)
@@ -81,10 +74,10 @@ class AssetManufacturerTest extends TestCase
     /** @test */
     public function check_update()
     {
-        $manufacturer = AssetManufacturer::factory()->create();
+        $manufacturer = Manufacturer::factory()->create();
         $new_name = Factory::create()->words(2, true);
 
-        $response = $this->actingAs($this->user)->patch('/api/asset_manufacturer/' . $manufacturer->id, [
+        $response = $this->actingAs(self::getRandomUser())->patch('/api/manufacturer/' . $manufacturer->id, [
             'name' => $new_name
         ]);
 
@@ -92,7 +85,7 @@ class AssetManufacturerTest extends TestCase
             ->assertStatus(200)
             ->assertJson([
                 'result' => 'success',
-                'assetManufacturer' => [
+                'manufacturer' => [
                     'id' => $manufacturer->id,
                     'name' => $new_name,
                     'created_at' => Str::replace('"', '', json_encode($manufacturer->created_at)),
@@ -104,10 +97,10 @@ class AssetManufacturerTest extends TestCase
     /** @test */
     public function check_delete()
     {
-        $manufacturer = AssetManufacturer::factory()->create();
+        $manufacturer = Manufacturer::factory()->create();
         $manufacturer_id = $manufacturer->id;
 
-        $response = $this->actingAs($this->user)->delete('/api/asset_manufacturer/' . $manufacturer->id);
+        $response = $this->actingAs(self::getRandomUser())->delete('/api/manufacturer/' . $manufacturer->id);
 
         $response
             ->assertStatus(200)
@@ -115,7 +108,7 @@ class AssetManufacturerTest extends TestCase
                 'result' => true
             ]);
 
-        $latest = AssetManufacturer::where('id', $manufacturer_id)->first();
+        $latest = Manufacturer::where('id', $manufacturer_id)->first();
 
         $this->assertTrue($latest == null);
     }

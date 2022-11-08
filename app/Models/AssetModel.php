@@ -12,7 +12,7 @@ class AssetModel extends Model
     protected $fillable = [
         'name',
         'asset_category_id',
-        'asset_manufacturer_id'
+        'manufacturer_id'
     ];
 
     protected $with = [
@@ -27,6 +27,6 @@ class AssetModel extends Model
 
     public function manufacturer()
     {
-        return $this->belongsTo(AssetManufacturer::class, 'asset_manufacturer_id');
+        return $this->belongsTo(Manufacturer::class, 'manufacturer_id');
     }
 }
