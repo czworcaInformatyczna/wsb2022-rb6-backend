@@ -29,4 +29,9 @@ class AssetModel extends Model
     {
         return $this->belongsTo(Manufacturer::class, 'manufacturer_id');
     }
+
+    public function assets()
+    {
+        return $this->hasMany(Asset::class);
+    }
 }

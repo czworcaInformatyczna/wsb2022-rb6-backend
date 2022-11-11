@@ -46,4 +46,8 @@ class User extends Authenticatable
         return $this->hasOne(Cookie::class, 'user_id', 'id');
     }
 
+    public function assets()
+    {
+        return $this->hasMany(Asset::class, 'current_holder_id');
+    }
 }

@@ -12,4 +12,14 @@ class AssetCategory extends Model
     protected $fillable = [
         'name'
     ];
+
+    public function models()
+    {
+        return $this->hasMany(AssetModel::class);
+    }
+
+    public function assets()
+    {
+        return $this->hasManyThrough(Asset::class, AssetModel::class);
+    }
 }
