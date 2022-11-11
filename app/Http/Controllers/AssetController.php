@@ -33,7 +33,7 @@ class AssetController extends Controller
     {
         $validated = $request->validate([
             'per_page' => 'integer|nullable|min:2|max:30',
-            'search' => 'string|nullable|min:3|max:30',
+            'search' => 'string|nullable|min:1|max:30',
             'status' => [
                 'integer',
                 new Enum(AssetStatus::class)
