@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
@@ -34,6 +35,14 @@ class AssetController extends Controller
         $validated = $request->validate([
             'per_page' => 'integer|nullable|min:2|max:30',
             'search' => 'string|nullable|min:1|max:30',
+            'sort' => [
+                'string',
+                Rule::in(['id', 'name', 'notes', 'order_number', 'price', 'purchase_date', 'serial', 'status', 'tag', 'warranty', 'updated_at'])
+            ],
+            'order' => [
+                'string',
+                Rule::in(['asc', 'desc']),
+            ],
             'status' => [
                 'integer',
                 new Enum(AssetStatus::class)
@@ -59,6 +68,10 @@ class AssetController extends Controller
 
         if (($validated['status'] ?? null) !== null) {
             $asset = $asset->where('status', $validated['status']);
+        }
+
+        if (($validated['sort'] ?? null) !== null) {
+            $asset = $asset->orderBy($validated['sort'], ($validated['order'] ?? 'asc'));
         }
 
         return $asset->paginate($validated['per_page'] ?? 10);
