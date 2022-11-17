@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreAssetModelRequest extends FormRequest
+class UpdateAssetFileRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,9 +24,7 @@ class StoreAssetModelRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|string|min:3|max:255|unique:asset_models,name',
-            'asset_category_id' => 'required|numeric|integer|exists:asset_categories,id',
-            'manufacturer_id' => 'required|numeric|integer|exists:manufacturers,id'
+            'notes' => 'required|nullable|max:1024|min:3'
         ];
     }
 }

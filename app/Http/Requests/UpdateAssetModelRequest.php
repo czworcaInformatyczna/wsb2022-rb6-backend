@@ -32,7 +32,7 @@ class UpdateAssetModelRequest extends FormRequest
                 Rule::unique('asset_models', 'name')->ignore($this->route('asset_model')['id'])
             ],
             'asset_category_id' => 'numeric|integer|exists:asset_categories,id',
-            'asset_manufacturer_id' => 'numeric|integer|exists:asset_manufacturers,id'
+            'manufacturer_id' => 'numeric|integer|exists:manufacturers,id'
         ];
     }
 }

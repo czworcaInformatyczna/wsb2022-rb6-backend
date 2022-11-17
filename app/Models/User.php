@@ -57,8 +57,9 @@ class User extends Authenticatable
     public function cookie(){
         return $this->hasOne(Cookie::class, 'user_id', 'id');
     }
-
-    public function avatar(){
-        return $this->hasOne(Avatar::class, 'user_id', 'id');
+    
+    public function assets()
+    {
+        return $this->hasMany(Asset::class, 'current_holder_id');
     }
 }

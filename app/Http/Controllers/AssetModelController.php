@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\AssetModel;
 use App\Http\Requests\StoreAssetModelRequest;
 use App\Http\Requests\UpdateAssetModelRequest;
+use Illuminate\Http\Request;
 
 class AssetModelController extends Controller
 {
@@ -13,9 +14,24 @@ class AssetModelController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return AssetModel::all();
+        $validated = $request->validate([
+            'per_page' => 'integer|nullable|min:2|max:30',
+            'search' => 'string|nullable|min:1|max:30'
+        ]);
+
+        $model = AssetModel::query();
+
+        if ($validated['search'] ?? false) {
+            $model = $model->where(function ($query) use ($validated) {
+                $query->Where('name', 'like', "%{$validated['search']}%")
+                    ->orWhereRelation('category', 'name', 'like', "%{$validated['search']}%")
+                    ->orWhereRelation('manufacturer', 'name', 'like', "%{$validated['search']}%");
+            });
+        }
+
+        return $model->paginate($validated['per_page'] ?? 10);
     }
 
     /**

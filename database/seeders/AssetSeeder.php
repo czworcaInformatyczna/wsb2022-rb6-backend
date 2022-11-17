@@ -2,11 +2,11 @@
 
 namespace Database\Seeders;
 
-use App\Models\AssetModel;
+use App\Models\Asset;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
-class AssetModelSeeder extends Seeder
+class AssetSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -15,6 +15,6 @@ class AssetModelSeeder extends Seeder
      */
     public function run()
     {
-        AssetModel::factory()->count(10)->create();
+        Asset::factory()->count(10)->with_image()->create();
     }
 }
