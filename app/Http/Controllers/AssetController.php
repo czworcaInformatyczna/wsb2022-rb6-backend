@@ -174,7 +174,7 @@ class AssetController extends Controller
 
     public function qr_code(Asset $asset)
     {
-        return QrCode::errorCorrection('H')->size(300)->generate($asset->tag);
+        return QrCode::errorCorrection('H')->size(300)->generate($asset->id);
     }
 
     public static function parse_image($image): string
