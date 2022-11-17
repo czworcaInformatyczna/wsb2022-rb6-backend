@@ -14,8 +14,6 @@ use App\Models\PasswordReset;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 
-use function PHPUnit\Framework\isNull;
-
 class SanctumController extends Controller
 {
     public function register(Request $request){
@@ -78,6 +76,40 @@ class SanctumController extends Controller
             'token_type' => 'Bearer',
             'theme_id' => $user->cookie->theme->id,
             'language_id' => $user->cookie->language->id,
+            'isActive' => $this->isActive($user)
+        ]);
+    }
+
+    public function login2(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required',
+            'password' => 'required'
+        ]);
+        if($validator->fails()){
+            return response()->json(
+                ['errors' => $validator->errors()]
+            ,400);
+        }
+        if (!Auth::attempt($request->only('email', 'password'))) {
+            return response()->json([
+            'message' => 'Invalid login details'
+            ], 401);
+        }
+        $user = User::where('email', $request['email'])->firstOrFail();
+
+        auth()->user()->tokens()->delete();
+
+        $token = $user->createToken('auth_token')->plainTextToken;
+        app('App\Http\Controllers\Api\CookiesController')->createCookie($user->id);
+        return response()->json([
+            'name' => $user->name,
+            'email' => $user->email, 
+            'access_token' => $token,
+            'token_type' => 'Bearer',
+            'theme_id' => $user->cookie->theme->id,
+            'language_id' => $user->cookie->language->id,
+            'isActive' => $this->isActive($user)
         ]);
     }
 
@@ -166,5 +198,12 @@ class SanctumController extends Controller
         return response([
             'message' => 'Success'
         ],200);
+    }
+
+    public function isActive(User $user){
+        if(is_null($user->email_verified_at)){
+            return false;
+        }
+        return true;
     }
 }

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\CookiesController;
+use App\Http\Controllers\AvatarController;
 use Illuminate\Support\Facades\Route;
 
 /*
