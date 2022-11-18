@@ -14,6 +14,8 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
 
+use function PHPUnit\Framework\isNull;
+
 class UserController extends Controller
 {
     /**
@@ -45,20 +47,21 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'name' => 'required',
+            'name' => 'string|required',
+            'surname' => 'string|required',
             'email' => 'required|email|unique:users,email',
-            'role' => 'string|required'
+            'roles' => 'array|required'
         ]);
 
         $input = $request->all();
         //$input['password'] = Hash::make(Str::random(16));
-        $input['password'] = '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi'; //password
+        $input['password'] = Hash::make('password');
 
         $user = User::create($input);
-        $user->assignRole($request->input('role'));
+        $user->syncRoles($request->roles);
     
         Mail::to($request->email)
-                ->send(new FirstLoginCredentials($request->email, $input['password']));
+                ->send(new FirstLoginCredentials($request->email, 'password'));
         
         return response()->json([
             'message' => 'User was created successfully'
@@ -98,27 +101,38 @@ class UserController extends Controller
     {
         $this->validate($request, [
             'name' => 'required',
-            'email' => 'required|email|unique:users,email',
-            'role' => 'string|required'
+            'email' => 'nullable|email',
+            'roles' => 'array|required'
         ]);
-
-        User::where('email', $request->email)
-            ->update([
-            'name' => $request->name,
-            'surname' => $request->surname,
-            'email' => $request->email,
-            'role' => $request->roles,
-            'phone_number' => $request->phone_number
+        if(($request->email == null)||($request->email == User::where('id', $id)->first()->email)){
+            User::where('email', $request->email)->update([
+                'name' => $request->name,
+                'surname' => $request->surname,
+                'phone_number' => $request->phone_number
             ]);
-
-    
-        User::where('email', $request->email)
+        }
+        else{
+            if(User::where('email', $request->email)->first() == null){
+                User::where('id', $id)->update([
+                    'name' => $request->name,
+                    'surname' => $request->surname,
+                    'email' => $request->email,
+                    'phone_number' => $request->phone_number
+                ]);
+            }
+            else{
+                return response()->json([
+                    'message' => 'The email has already been taken'
+                ],400);
+            }
+        }
+        User::where('id', $id)
             ->first()
-            ->syncRoles([$request->role]);;
+            ->syncRoles($request->role);
         
-            return response()->json([
-                'message' => 'User was updated successfully'
-            ], 200);
+        return response()->json([
+            'message' => 'User was updated successfully'
+        ], 200);
     }
 
     /**
