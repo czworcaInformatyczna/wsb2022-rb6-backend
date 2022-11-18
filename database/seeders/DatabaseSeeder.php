@@ -18,7 +18,7 @@ class DatabaseSeeder extends Seeder
         User::factory(10)->create();
         $this->call([
             AssetCategorySeeder::class,
-            AssetManufacturerSeeder::class,
+            //AssetManufacturerSeeder::class,
             PermissionSeeder::class,
             ManufacturerSeeder::class,
             AssetModelSeeder::class,
