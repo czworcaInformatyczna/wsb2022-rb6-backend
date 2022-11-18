@@ -36,7 +36,7 @@ jobs:
         mysql -e 'CREATE DATABASE ${{ env.DB_DATABASE }};' -u${{ env.DB_USERNAME }} -p${{ env.DB_PASSWORD }}
     - name: Migrate database 
       run: php artisan migrate
-      name: Seed database
+    - name: Seed database
       run: php artisan db:seed
     - name: Execute tests (Unit and Feature tests) via PHPUnit
       env:
