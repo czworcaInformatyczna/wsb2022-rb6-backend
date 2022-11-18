@@ -25,7 +25,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        return User::with('roles')->paginate(25);
+        return User::with('roles')->select(['id', 'name', 'surname', 'phone_number', 'email'])->paginate(25);
     }
 
     /**
@@ -76,7 +76,7 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        return User::where('id', $id)->first()->roles;
+        return User::where('id', $id)->select(['id', 'name', 'surname', 'phone_number', 'email'])->with('roles')->first();
     }
 
     /**
@@ -143,15 +143,25 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
-        return User::where('id', $id)
-            ->delete();
+        if(User::where('id', $id)->first()){
+            User::where('id', $id)->delete();
+
+            return response()->json([
+                'message' => 'User was deleted successfully'
+            ], 200);
+        }
+        else{
+            return response()->json([
+                'massegae' => 'There is no user with id = '.$id
+            ]);
+        }
     }
 
     public function activateAccount(Request $request){
         $validator = Validator::make($request->all(), [
-            'email' => 'required',
-            'password' => 'required',
-            'new_password' => 'string|required|confirmed'
+            'email' => 'email|required',
+            'token' => 'string|required',
+            'password' => 'string|required|confirmed'
         ]);
         if($validator->fails()){
             return response()->json(
@@ -161,7 +171,7 @@ class UserController extends Controller
 
         if (!Auth::attempt([
             'email' => $request->email,
-            'password' => $request->password
+            'password' => $request->token
         ])) {
             return response()->json([
             'message' => 'Invalid login details'
@@ -175,7 +185,7 @@ class UserController extends Controller
             ],405);
         }
         User::where('email', $request->email)->first()->update([
-            'password' => Hash::make($request->new_password),
+            'password' => Hash::make($request->password),
             'email_verified_at' => Carbon::now()
         ]);
         return response()->json([
@@ -211,15 +221,17 @@ class UserController extends Controller
                     'avatar' => $filename
                 ]);
         }
-        return 'Details were updated successfuly';
+        return response()->json([
+            'message' => 'Details were updated successfuly'
+        ]);
     }
 
-    public function showAvatar(Request $request){
-        $avatarName = User::where('id', $request->user_id)
+    public function showAvatar($id){
+        $avatarName = User::where('id', $id)
             ->first();
         if($avatarName == null){
             return response()->json([
-                'message' => 'user with id '.$request->user_id.' does not exist'
+                'message' => 'user with id '.$id.' does not exist'
             ], 400);
         }
         if($avatarName->avatar == null){
