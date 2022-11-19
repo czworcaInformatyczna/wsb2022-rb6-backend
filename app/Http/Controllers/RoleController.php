@@ -25,7 +25,9 @@ class RoleController extends Controller
      */
     public function index()
     {
-        return Role::select(['id', 'name'])->orderBy('id', 'asc')->get();
+        return Role::select('id', 'name')->with(['permissions' => function($a){
+            $a->select('id', 'name');
+        }])->paginate(25);
     }
 
     /**

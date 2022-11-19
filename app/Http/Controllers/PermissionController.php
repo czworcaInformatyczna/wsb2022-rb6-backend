@@ -23,6 +23,6 @@ class PermissionController extends Controller
      */
     public function index()
     {
-        return Permission::select(['id', 'name'])->get();
+        return Permission::select(['id', 'name'])->paginate(25);
     }
 }
