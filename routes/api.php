@@ -14,6 +14,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AssetController;
 use App\Http\Controllers\AssetFileController;
+use App\Http\Controllers\LogController;
 use App\Http\Controllers\StatisticsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -67,6 +68,8 @@ Route::group(['middleware' => ['auth:sanctum', 'auth.token:RefreshAccessToken']]
     Route::get('/asset_file/{assetFile}/download', [AssetFileController::class, 'download']);
 
     Route::get('/statistics', [StatisticsController::class, 'index']);
+
+    Route::apiResource('log', LogController::class);
 
 });
 Route::POST('/forgotpassword', [SanctumController::class, 'forgotPassword']);
