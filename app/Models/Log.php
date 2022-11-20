@@ -21,7 +21,9 @@ class Log extends Model
 
     protected $casts = [
         'action_type' => LogActionType::class,
-        'description' => 'array'
+        'description' => 'array',
+        'item_type' => LogItemType::class,
+        'target_type' => LogItemType::class
     ];
 
     public function item()
