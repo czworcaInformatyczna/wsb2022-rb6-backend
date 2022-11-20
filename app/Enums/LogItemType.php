@@ -3,10 +3,12 @@
 namespace App\Enums;
 
 use App\Models\Asset;
+use App\Models\AssetCategory;
 
 enum LogItemType: string
 {
     case Asset = 'asset';
+    case AssetCategory = 'asset_category';
 
     public static function values(): array
     {
@@ -17,6 +19,7 @@ enum LogItemType: string
     {
         return match ($this) {
             self::Asset => Asset::class,
+            self::AssetCategory => AssetCategory::class,
             default => null
         };
     }
