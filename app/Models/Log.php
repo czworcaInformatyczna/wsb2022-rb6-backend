@@ -7,18 +7,33 @@ use App\Enums\LogItemType;
 use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Facades\Auth;
 
 /**
- * Undocumented class
+ * Class responspible for logging actions.
+ * For example: $user_id gave asset $item_id to user $target_id
  *
- * @property integer $user_id
+ * @property integer $id
+ * @property datetime $created_at
+ * @property datetime $updated_at
+ * @property integer|null $user_id
+ * @property string|null $item_type "Main actor type"
+ * @property integer|null $item_id "Main actor ID"
+ * @property string|null $target_type "Secondary actor type"
+ * @property integer|null $target_id "Secondary actor ID"
  * @property LogActionType $action_type
+ * @property string|null $description Should be in JSON format
  */
 class Log extends Model
 {
     use HasFactory;
 
+    /**
+     * Laravel casts
+     *
+     * @var array
+     */
     protected $casts = [
         'action_type' => LogActionType::class,
         'description' => 'array',
@@ -26,11 +41,21 @@ class Log extends Model
         'target_type' => LogItemType::class
     ];
 
+    /**
+     * Polymorphic relationship that contains info about main actor
+     *
+     * @return MorphTo
+     */
     public function item()
     {
         return $this->morphTo();
     }
 
+    /**
+     * Polymorphic relationship that contains info about secondary actor
+     *
+     * @return MorphTo
+     */
     public function target()
     {
         return $this->morphTo();
