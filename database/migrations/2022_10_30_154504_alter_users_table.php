@@ -33,6 +33,10 @@ return new class extends Migration
      */
     public function down()
     {
-        //
+        Schema::table('users', function($table) {
+            $table->dropColumn('surname');
+            $table->dropColumn('phone_number');
+            $table->dropColumn('avatar');
+        });
     }
 };

@@ -23,11 +23,29 @@ class RoleController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return Role::select('id', 'name')->with(['permissions' => function($a){
-            $a->select('id', 'name');
-        }])->paginate(25);
+        $validated = $request->validate([
+            'per_page' => 'integer|nullable|min:2|max:100',
+            'search' => 'string|nullable|min:1|max:30',
+            'sort' => 'nullable|in:id,name',
+            'order' => 'nullable|in:asc,desc'
+        ]);
+
+        $asset = Role::query()->select('id','name')->with(['permissions' => function ($a){
+            $a->select('id','name');
+        }]);
+
+        if($request->search){
+            $asset = $asset->where(function ($query) use ($validated) {
+                $query->Where('id', 'like', "%{$validated['search']}%")
+                    ->orWhere('name', 'like', "%{$validated['search']}%")
+                    ->orWhereRelation('permissions', 'name', 'like', "%{$validated['search']}%");
+            });
+        }
+
+        $asset = $asset->orderBy($validated['sort'] ?? 'id', ($validated['order'] ?? 'asc'));
+        return $asset->paginate($validated['per_page'] ?? 25);
     }
 
     /**
@@ -141,6 +159,7 @@ class RoleController extends Controller
                 $permission = array_push($permissionsErrors, $permission);
             }
         }
+
         if(sizeof($permissionsErrors) != 0){
             return response()->json([
                 'message' => 'One or more of chosen permisions does not exist',
@@ -155,7 +174,7 @@ class RoleController extends Controller
         $role->syncPermissions($request->input('permissions'));
     
         return response()->json([
-            'message' => 'Role created successfully'
+            'message' => 'Role updated successfully'
         ]);
     }
 
