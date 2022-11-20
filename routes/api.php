@@ -44,7 +44,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::POST('/login', [SanctumController::class, 'login']);
 Route::patch('/activateaccount', [UserController::class, 'activateAccount']);
 
-Route::group(['middleware' => ['auth:sanctum', 'auth.token:RefreshAccessToken']], function(){
+Route::group(['middleware' => ['auth:sanctum', 'auth.token:RefreshAccessToken']], function () {
     Route::GET('/name', [ShowNameController::class, 'showName']);
     Route::PATCH('/changepassword', [SanctumController::class, 'changePassword']);
     Route::PATCH('/themes', [CookiesController::class, 'patchThemes']);
@@ -69,8 +69,7 @@ Route::group(['middleware' => ['auth:sanctum', 'auth.token:RefreshAccessToken']]
 
     Route::get('/statistics', [StatisticsController::class, 'index']);
 
-    Route::apiResource('log', LogController::class);
-
+    Route::get('log', [LogController::class, 'index']);
 });
 Route::POST('/forgotpassword', [SanctumController::class, 'forgotPassword']);
 Route::PATCH('/resetpassword', [SanctumController::class, 'resetPassword']);
@@ -80,5 +79,3 @@ Route::GET('/languages', [LanguagesController::class, 'get']);
 
 Route::apiResource('/role', RoleController::class);
 Route::get('/avatar/{id}', [UserController::class, 'showAvatar']);
-
-

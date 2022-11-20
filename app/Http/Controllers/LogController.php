@@ -66,15 +66,4 @@ class LogController extends Controller
 
         return $log->paginate($validated['per_page'] ?? 10);
     }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Log  $log
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Log $log)
-    {
-        return $log;
-    }
 }
