@@ -31,7 +31,7 @@ return new class extends Migration
             // What was logged
             $table->string('action_type', 256);
 
-            $table->string('description')->nullable();
+            $table->text('description')->nullable();
         });
     }
 
