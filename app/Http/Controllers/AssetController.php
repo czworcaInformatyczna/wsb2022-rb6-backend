@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Enums\AssetStatus;
+use App\Enums\LogActionType;
+use App\Enums\LogItemType;
 use App\Models\Asset;
 use App\Http\Requests\StoreAssetRequest;
 use App\Http\Requests\UpdateAssetRequest;
+use App\Models\Log;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -106,7 +109,16 @@ class AssetController extends Controller
             $asset->current_holder_id = null;
         }
 
+        $dirty = $asset->getDirty(); // For logs
+
         $saved = $asset->save();
+
+        Log::newEntry(
+            LogActionType::Created,
+            $dirty,
+            LogItemType::Asset,
+            $asset->id
+        );
 
         return response()->json([
             "result" => $saved,
@@ -154,7 +166,17 @@ class AssetController extends Controller
             $asset->current_holder_id = null;
         }
 
+        $dirty = $asset->getDirty(); // For logs
+
         $asset->save();
+
+        Log::newEntry(
+            LogActionType::Updated,
+            $dirty,
+            LogItemType::Asset,
+            $asset->id
+        );
+
         return response()->json([
             "result" => "success",
             "model" => $asset

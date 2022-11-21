@@ -2,6 +2,9 @@
 
 namespace App\Providers;
 
+use App\Models\Asset;
+use App\Models\AssetCategory;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -23,6 +26,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        Relation::morphMap([
+            'asset' => Asset::class,
+            'asset_category' => AssetCategory::class
+        ]);
     }
 }
