@@ -14,6 +14,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AssetController;
 use App\Http\Controllers\AssetFileController;
+use App\Http\Controllers\AssetMaintenanceController;
 use App\Http\Controllers\LogController;
 use App\Http\Controllers\StatisticsController;
 use Illuminate\Http\Request;
@@ -70,7 +71,10 @@ Route::group(['middleware' => ['auth:sanctum', 'auth.token:RefreshAccessToken']]
     Route::get('/statistics', [StatisticsController::class, 'index']);
 
     Route::get('log', [LogController::class, 'index']);
+
+    Route::apiResource('asset_maintenance', AssetMaintenanceController::class);
 });
+
 Route::POST('/forgotpassword', [SanctumController::class, 'forgotPassword']);
 Route::PATCH('/resetpassword', [SanctumController::class, 'resetPassword']);
 Route::POST('/logout', [SanctumController::class, 'logout'])->middleware(['auth:sanctum']);
