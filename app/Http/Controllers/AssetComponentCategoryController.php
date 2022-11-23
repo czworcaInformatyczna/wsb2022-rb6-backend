@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\AssetComponentCategory;
 use App\Http\Requests\StoreAssetComponentCategoryRequest;
 use App\Http\Requests\UpdateAssetComponentCategoryRequest;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Enum;
 
 class AssetComponentCategoryController extends Controller
 {
@@ -13,9 +16,41 @@ class AssetComponentCategoryController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return true;
+        $validated = $request->validate([
+            'per_page' => 'integer|nullable|min:2|max:30',
+            'search' => 'string|nullable|min:1|max:30',
+            'sort' => [
+                'string',
+                Rule::in(['id', 'created_at', 'updated_at', 'name'])
+            ],
+            'order' => [
+                'string',
+                Rule::in(['asc', 'desc']),
+            ],
+            'search' => [
+                'string',
+                'nullable',
+                'max:64',
+                'min:1'
+            ]
+        ]);
+
+        $model = AssetComponentCategory::query();
+
+        if ($validated['search'] ?? false) {
+            // This separated so it doesn't colide with status check
+            $model = $model->where(function ($query) use ($validated) {
+                $query->Where('name', 'like', "%{$validated['search']}%");
+            });
+        }
+
+        if (($validated['sort'] ?? null) !== null) {
+            $model = $model->orderBy($validated['sort'], ($validated['order'] ?? 'asc'));
+        }
+
+        return $model->paginate($validated['per_page'] ?? 10);
     }
 
     /**
@@ -26,7 +61,12 @@ class AssetComponentCategoryController extends Controller
      */
     public function store(StoreAssetComponentCategoryRequest $request)
     {
-        return true;
+        $assetComponentCategory = new AssetComponentCategory($request->validated());
+        $saved = $assetComponentCategory->save();
+        return response()->json([
+            "result" => $saved,
+            "model" => $saved ? $assetComponentCategory : null,
+        ]);
     }
 
     /**
@@ -37,7 +77,7 @@ class AssetComponentCategoryController extends Controller
      */
     public function show(AssetComponentCategory $assetComponentCategory)
     {
-        return true;
+        return $assetComponentCategory;
     }
 
     /**
@@ -49,7 +89,12 @@ class AssetComponentCategoryController extends Controller
      */
     public function update(UpdateAssetComponentCategoryRequest $request, AssetComponentCategory $assetComponentCategory)
     {
-        return true;
+        $assetComponentCategory->fill($request->validated());
+        $assetComponentCategory->save();
+        return response()->json([
+            "result" => "success",
+            "model" => $assetComponentCategory
+        ]);
     }
 
     /**
@@ -60,6 +105,8 @@ class AssetComponentCategoryController extends Controller
      */
     public function destroy(AssetComponentCategory $assetComponentCategory)
     {
-        return true;
+        return response()->json([
+            "result" => $assetComponentCategory->delete()
+        ]);
     }
 }
