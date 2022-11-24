@@ -23,9 +23,44 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
+<<<<<<< Updated upstream
         return User::with('roles')->paginate(25);
+=======
+        $validated = $request->validate([
+            'role' => 'string|nullable',
+            'per_page' => 'integer|max:100|nullable',
+            'sort' => 'in:id,name,surname,email',
+            'order' => 'in:asc,desc'
+        ]);
+
+        $user = User::query()
+            ->select(['id', 'name', 'surname', 'phone_number', 'email'])
+            ->with(["roles" => function ($a) {
+                $a->select(['id', 'name']);
+            }]);
+
+        $user->orderBy($validated['sort'] ?? 'id', ($validated['order'] ?? 'asc'));
+
+        if ($request->role != null) {
+            $user = $user->whereHas("roles", function ($q) use ($validated) {
+                $q->where("name", $validated['role']);
+            });
+        }
+
+        $response = $user->paginate($validated['per_page'] ?? 25)->toArray();
+
+        foreach ($response['data'] as $key => $value) {
+            $tempUser = User::find($value['id']);
+            if ($tempUser->email_verified_at == null) {
+                $response['data'][$key]['activated'] = false;
+            } else {
+                $response['data'][$key]['activated'] = true;
+            }
+        }
+        return $response;
+>>>>>>> Stashed changes
     }
 
     /**
@@ -59,10 +94,10 @@ class UserController extends Controller
 
         $user = User::create($input);
         $user->syncRoles($request->roles);
-    
+
         Mail::to($request->email)
-                ->send(new FirstLoginCredentials($request->email, 'password'));
-        
+            ->send(new FirstLoginCredentials($request->email, 'password'));
+
         return response()->json([
             'message' => 'User was created successfully'
         ], 200);
@@ -104,32 +139,30 @@ class UserController extends Controller
             'email' => 'nullable|email',
             'roles' => 'array|required'
         ]);
-        if(($request->email == null)||($request->email == User::where('id', $id)->first()->email)){
+        if (($request->email == null) || ($request->email == User::where('id', $id)->first()->email)) {
             User::where('email', $request->email)->update([
                 'name' => $request->name,
                 'surname' => $request->surname,
                 'phone_number' => $request->phone_number
             ]);
-        }
-        else{
-            if(User::where('email', $request->email)->first() == null){
+        } else {
+            if (User::where('email', $request->email)->first() == null) {
                 User::where('id', $id)->update([
                     'name' => $request->name,
                     'surname' => $request->surname,
                     'email' => $request->email,
                     'phone_number' => $request->phone_number
                 ]);
-            }
-            else{
+            } else {
                 return response()->json([
                     'message' => 'The email has already been taken'
-                ],400);
+                ], 400);
             }
         }
         User::where('id', $id)
             ->first()
-            ->syncRoles($request->role);
-        
+            ->syncRoles($request->roles);
+
         return response()->json([
             'message' => 'User was updated successfully'
         ], 200);
@@ -143,20 +176,36 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
+<<<<<<< Updated upstream
         return User::where('id', $id)
             ->delete();
+=======
+        if (User::where('id', $id)->first()) {
+            User::where('id', $id)->delete();
+
+            return response()->json([
+                'message' => 'User was deleted successfully'
+            ], 200);
+        } else {
+            return response()->json([
+                'massegae' => 'There is no user with id = ' . $id
+            ]);
+        }
+>>>>>>> Stashed changes
     }
 
-    public function activateAccount(Request $request){
+    public function activateAccount(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'email' => 'required',
             'password' => 'required',
             'new_password' => 'string|required|confirmed'
         ]);
-        if($validator->fails()){
+        if ($validator->fails()) {
             return response()->json(
-                ['errors' => $validator->errors()]
-            ,400);
+                ['errors' => $validator->errors()],
+                400
+            );
         }
 
         if (!Auth::attempt([
@@ -164,15 +213,15 @@ class UserController extends Controller
             'password' => $request->password
         ])) {
             return response()->json([
-            'message' => 'Invalid login details'
+                'message' => 'Invalid login details'
             ], 401);
         }
 
         $user = User::where('email', $request->email)->first();
-        if(!is_null($user->email_verified_at)){
+        if (!is_null($user->email_verified_at)) {
             return response()->json([
                 'message' => 'Account is already activated'
-            ],405);
+            ], 405);
         }
         User::where('email', $request->email)->first()->update([
             'password' => Hash::make($request->new_password),
@@ -183,27 +232,28 @@ class UserController extends Controller
         ], 200);
     }
 
-    public function setUserDetails(Request $request){
+    public function setUserDetails(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'phone_number' => 'nullable|string|max:15',
         ]);
-        if($validator->fails()){
+        if ($validator->fails()) {
             return response()->json(
-                ['errors' => $validator->errors()]
-            ,400);
+                ['errors' => $validator->errors()],
+                400
+            );
         }
-        if($request->avatar == null){
+        if ($request->avatar == null) {
             User::where('id', auth()->user()->id)
                 ->update([
                     'phone_number' => $request->phone_number
                 ]);
-        }
-        else{
+        } else {
             $image = $request->file('avatar');
-            $filename = uniqid().'.'.$request->avatar->extension();
-            $image_resize = Image::make($image->getRealPath());              
+            $filename = uniqid() . '.' . $request->avatar->extension();
+            $image_resize = Image::make($image->getRealPath());
             $image_resize->resize(300, 300);
-            $image_resize->save('storage/avatars/'.$filename);
+            $image_resize->save('storage/avatars/' . $filename);
 
             User::where('id', auth()->user()->id)
                 ->update([
@@ -214,27 +264,46 @@ class UserController extends Controller
         return 'Details were updated successfuly';
     }
 
+<<<<<<< Updated upstream
     public function showAvatar(Request $request){
         $avatarName = User::where('id', $request->user_id)
+=======
+    public function showAvatar($id)
+    {
+        $avatarName = User::where('id', $id)
+>>>>>>> Stashed changes
             ->first();
-        if($avatarName == null){
+        if ($avatarName == null) {
             return response()->json([
+<<<<<<< Updated upstream
                 'message' => 'user with id '.$request->user_id.' does not exist'
+=======
+                'message' => 'user with id ' . $id . ' does not exist'
+>>>>>>> Stashed changes
             ], 400);
         }
-        if($avatarName->avatar == null){
+        if ($avatarName->avatar == null) {
             return null;
         }
-        return Storage::response('/public/avatars/'.$avatarName->avatar);
+        return Storage::response('/public/avatars/' . $avatarName->avatar);
     }
 
-    public function removeAvatar(Request $request){
+    public function removeAvatar(Request $request)
+    {
         $user = User::where('id', $request->user_id)->first();
-        Storage::response('/public/avatars/'.$user->avatar);
+        Storage::response('/public/avatars/' . $user->avatar);
         $user->avatar = null;
         $user->save();
         return response()->json([
             'message' => 'Avatar was removed successfully'
         ]);
+    }
+
+    public function isActivated(User $user)
+    {
+        if ($user->email_verified_at != null) {
+            return true;
+        }
+        return false;
     }
 }

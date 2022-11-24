@@ -25,7 +25,32 @@ class RoleController extends Controller
      */
     public function index()
     {
+<<<<<<< Updated upstream
         return Role::all();
+=======
+        $validated = $request->validate([
+            'per_page' => 'integer|nullable|min:2|max:100',
+            'search' => 'string|nullable|min:1|max:30',
+            'sort' => 'nullable|in:id,name',
+            'order' => 'nullable|in:asc,desc'
+        ]);
+
+        $asset = Role::query()->select('id', 'name')->with(['permissions' => function ($a) {
+            $a->select('id', 'name');
+        }]);
+
+
+        if ($request->search) {
+            $asset = $asset->where(function ($query) use ($validated) {
+                $query->Where('id', 'like', "%{$validated['search']}%")
+                    ->orWhere('name', 'like', "%{$validated['search']}%")
+                    ->orWhereRelation('permissions', 'name', 'like', "%{$validated['search']}%");
+            });
+        }
+
+        $asset = $asset->orderBy($validated['sort'] ?? 'id', ($validated['order'] ?? 'asc'));
+        return $asset->paginate($validated['per_page'] ?? 25);
+>>>>>>> Stashed changes
     }
 
     /**
@@ -50,34 +75,35 @@ class RoleController extends Controller
             'name' => 'string|required',
             'permissions' => 'array|required',
         ]);
-        if($validator->fails()){
+        if ($validator->fails()) {
             return response()->json(
-                ['errors' => $validator->errors()]
-            ,400);
+                ['errors' => $validator->errors()],
+                400
+            );
         }
 
-        if(Role::where('name', $request->name)->first()){
+        if (Role::where('name', $request->name)->first()) {
             return response()->json([
-                'error' => 'User '. $request->name .' already exists'
+                'error' => 'User ' . $request->name . ' already exists'
             ], 400);
         }
 
         $permissionsErrors = [];
-        foreach($request->permissions as $permission){
-            if(!Permission::where('name', $permission)->first()){
+        foreach ($request->permissions as $permission) {
+            if (!Permission::where('name', $permission)->first()) {
                 $permission = array_push($permissionsErrors, $permission);
             }
         }
-        if(sizeof($permissionsErrors) != 0){
+        if (sizeof($permissionsErrors) != 0) {
             return response()->json([
                 'message' => 'One or more of chosen permisions does not exist',
                 'non exisiting permissions' => $permissionsErrors
             ]);
         }
-    
+
         $role = Role::create(['name' => $request->input('name')]);
         $role->syncPermissions($request->input('permissions'));
-    
+
         return response()->json([
             'message' => 'Role created successfully'
         ]);
@@ -93,9 +119,14 @@ class RoleController extends Controller
     {
         $role = Role::find($id);
         $rolePermissions = Permission::join('role_has_permissions', 'role_has_permissions.permission_id', 'permissions.id')
+<<<<<<< Updated upstream
             ->where('role_has_permissions.role_id',$id)
+=======
+            ->where('role_has_permissions.role_id', $id)
+            ->select(['id', 'name'])
+>>>>>>> Stashed changes
             ->get();
-    
+
         return compact('role', 'rolePermissions');
     }
 
@@ -123,34 +154,38 @@ class RoleController extends Controller
             'name' => 'required',
             'permissions' => 'array',
         ]);
-
-        if(!(Role::where('id', $id)->select('name')->first()->value('name') == $request->name)){
-            if(Role::where('name', $request->name)->first()){
+        if (Role::where('id', $id)->select('name')->first()->name != $request->name) {
+            if (Role::where('name', $request->name)->first()) {
                 return response()->json([
-                    'error' => 'User '. $request->name .' already exists'
+                    'error' => 'User ' . $request->name . ' already exists'
                 ], 400);
             }
-        }  
+        }
 
         $permissionsErrors = [];
-        foreach($request->permissions as $permission){
-            if(!Permission::where('name', $permission)->first()){
+        foreach ($request->permissions as $permission) {
+            if (!Permission::where('name', $permission)->first()) {
                 $permission = array_push($permissionsErrors, $permission);
             }
         }
+<<<<<<< Updated upstream
         if(sizeof($permissionsErrors) != 0){
+=======
+
+        if (sizeof($permissionsErrors) != 0) {
+>>>>>>> Stashed changes
             return response()->json([
                 'message' => 'One or more of chosen permisions does not exist',
                 'non exisiting permissions' => $permissionsErrors
             ]);
         }
-    
+
         $role = Role::find($id);
         $role->name = $request->input('name');
         $role->save();
-    
+
         $role->syncPermissions($request->input('permissions'));
-    
+
         return response()->json([
             'message' => 'Role created successfully'
         ]);
@@ -165,7 +200,7 @@ class RoleController extends Controller
     public function destroy($id)
     {
         Role::find($id)->delete();
-        
+
         return response()->json([
             'message' => 'Role removed successfully'
         ]);
