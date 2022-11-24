@@ -47,21 +47,29 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'isActive' => 'boolean'
     ];
 
-    public function isActive(){
-        if(isNull($this->email_verified_at)){
-            return false;
+    public function isActive()
+    {
+        if ($this->email_verified_at != null) {
+            return true;
         }
-        return true;
+        return false;
     }
 
-    public function cookie(){
+    public function cookie()
+    {
         return $this->hasOne(Cookie::class, 'user_id', 'id');
     }
-    
+
     public function assets()
     {
         return $this->hasMany(Asset::class, 'current_holder_id');
+    }
+
+    public function licences()
+    {
+        return $this->belongsToMany(Licence::class);
     }
 }
