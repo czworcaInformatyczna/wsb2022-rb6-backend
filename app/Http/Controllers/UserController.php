@@ -25,9 +25,6 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-<<<<<<< Updated upstream
-        return User::with('roles')->paginate(25);
-=======
         $validated = $request->validate([
             'role' => 'string|nullable',
             'per_page' => 'integer|max:100|nullable',
@@ -60,7 +57,6 @@ class UserController extends Controller
             }
         }
         return $response;
->>>>>>> Stashed changes
     }
 
     /**
@@ -176,10 +172,6 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
-<<<<<<< Updated upstream
-        return User::where('id', $id)
-            ->delete();
-=======
         if (User::where('id', $id)->first()) {
             User::where('id', $id)->delete();
 
@@ -191,7 +183,6 @@ class UserController extends Controller
                 'massegae' => 'There is no user with id = ' . $id
             ]);
         }
->>>>>>> Stashed changes
     }
 
     public function activateAccount(Request $request)
@@ -264,22 +255,13 @@ class UserController extends Controller
         return 'Details were updated successfuly';
     }
 
-<<<<<<< Updated upstream
-    public function showAvatar(Request $request){
-        $avatarName = User::where('id', $request->user_id)
-=======
     public function showAvatar($id)
     {
         $avatarName = User::where('id', $id)
->>>>>>> Stashed changes
             ->first();
         if ($avatarName == null) {
             return response()->json([
-<<<<<<< Updated upstream
-                'message' => 'user with id '.$request->user_id.' does not exist'
-=======
                 'message' => 'user with id ' . $id . ' does not exist'
->>>>>>> Stashed changes
             ], 400);
         }
         if ($avatarName->avatar == null) {

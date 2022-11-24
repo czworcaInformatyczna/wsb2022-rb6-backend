@@ -23,11 +23,8 @@ class RoleController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-<<<<<<< Updated upstream
-        return Role::all();
-=======
         $validated = $request->validate([
             'per_page' => 'integer|nullable|min:2|max:100',
             'search' => 'string|nullable|min:1|max:30',
@@ -50,7 +47,6 @@ class RoleController extends Controller
 
         $asset = $asset->orderBy($validated['sort'] ?? 'id', ($validated['order'] ?? 'asc'));
         return $asset->paginate($validated['per_page'] ?? 25);
->>>>>>> Stashed changes
     }
 
     /**
@@ -119,12 +115,8 @@ class RoleController extends Controller
     {
         $role = Role::find($id);
         $rolePermissions = Permission::join('role_has_permissions', 'role_has_permissions.permission_id', 'permissions.id')
-<<<<<<< Updated upstream
-            ->where('role_has_permissions.role_id',$id)
-=======
             ->where('role_has_permissions.role_id', $id)
             ->select(['id', 'name'])
->>>>>>> Stashed changes
             ->get();
 
         return compact('role', 'rolePermissions');
@@ -168,12 +160,8 @@ class RoleController extends Controller
                 $permission = array_push($permissionsErrors, $permission);
             }
         }
-<<<<<<< Updated upstream
-        if(sizeof($permissionsErrors) != 0){
-=======
 
         if (sizeof($permissionsErrors) != 0) {
->>>>>>> Stashed changes
             return response()->json([
                 'message' => 'One or more of chosen permisions does not exist',
                 'non exisiting permissions' => $permissionsErrors
