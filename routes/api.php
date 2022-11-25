@@ -55,11 +55,10 @@ Route::group(['middleware' => ['auth:sanctum', 'auth.token:RefreshAccessToken']]
     Route::post('/user/edit', [UserController::class, 'setUserDetails']);
     Route::apiResource('/user', UserController::class);
     Route::apiResource('/permission', PermissionController::class);
-
+    Route::get('/role/users/{id}', [RoleController::class, 'rolesWithUsers']);
+    Route::apiResource('/role', RoleController::class);
     //DEBUG
-    Route::get('/permission1', [PermissionTestController::class, 'permission1'])->middleware(['permission:permission1']);
-    Route::get('/permission2', [PermissionTestController::class, 'permission2'])->middleware(['permission:permission2']);
-    Route::get('/permission3', [PermissionTestController::class, 'permission3'])->middleware(['permission:permission3']);
+
     Route::apiResource('manufacturer', ManufacturerController::class);
 
     Route::get('/asset/{asset}/qr', [AssetController::class, 'qr_code']);
@@ -81,5 +80,5 @@ Route::POST('/logout', [SanctumController::class, 'logout'])->middleware(['auth:
 Route::GET('/themes', [ThemesController::class, 'get']);
 Route::GET('/languages', [LanguagesController::class, 'get']);
 
-Route::apiResource('/role', RoleController::class);
+
 Route::get('/avatar/{id}', [UserController::class, 'showAvatar']);

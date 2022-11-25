@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Validator;
+use App\Models\User;
 
 class RoleController extends Controller
 {
@@ -192,5 +193,19 @@ class RoleController extends Controller
         return response()->json([
             'message' => 'Role removed successfully'
         ]);
+    }
+
+    public function rolesWithUsers(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'per_page' => 'integer|nullable|max:100'
+        ]);
+
+        $role = Role::select('id', 'name')->find($id)->toArray();
+        $users = User::select('id', 'name', 'surname', 'phone_number', 'avatar', 'email')->whereHas("roles", function ($q) use ($role) {
+            $q->where("name", $role['name']);
+        })->paginate($validated['per_page'] ?? 25);
+        $role['users'] = $users;
+        return $role;
     }
 }
