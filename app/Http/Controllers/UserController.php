@@ -290,4 +290,39 @@ class UserController extends Controller
         }
         return false;
     }
+
+    public function removeRole(Request $request)
+    {
+        $validated = $request->validate([
+            'user_id' => 'integer|required'
+        ]);
+        $user = User::find($validated['user_id']);
+        if ($user) {
+            $user->syncRoles();
+            return response()->json([
+                'message' => 'All roles of user with id ' . $validated['user_id'] . ' has been removed'
+            ]);
+        }
+        return response()->json([
+            'message' => 'There is no user with id ' . $validated['user_id']
+        ], 400);
+    }
+
+    public function massAssignRoles(Request $request)
+    {
+        $validated = $request->validate([
+            'users' => 'array|required',
+            'users.*' => 'integer|distinct',
+            'roles' => 'array|required',
+            'roles.*' => 'string|distinct'
+        ]);
+
+        foreach ($validated['users'] as $user_id) {
+            User::find($user_id)->syncRoles($validated['roles']);
+        }
+
+        return response()->json([
+            'message' => 'Success'
+        ]);
+    }
 }
