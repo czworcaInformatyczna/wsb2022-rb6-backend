@@ -294,11 +294,12 @@ class UserController extends Controller
     public function removeRole(Request $request)
     {
         $validated = $request->validate([
-            'user_id' => 'integer|required'
+            'user_id' => 'integer|required',
+            'role' => 'string|required'
         ]);
         $user = User::find($validated['user_id']);
         if ($user) {
-            $user->syncRoles();
+            $user->removeRole($validated['role']);
             return response()->json([
                 'message' => 'All roles of user with id ' . $validated['user_id'] . ' has been removed'
             ]);
