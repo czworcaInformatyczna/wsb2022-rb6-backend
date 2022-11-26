@@ -23,6 +23,14 @@ class AssetComponent extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'asset_id',
+        'asset_component_category_id',
+        'manufacturer_id',
+        'name',
+        'serial'
+    ];
+
     public function asset()
     {
         return $this->belongsTo(Asset::class, 'asset_id');

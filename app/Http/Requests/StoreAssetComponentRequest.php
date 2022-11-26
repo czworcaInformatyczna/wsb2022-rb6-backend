@@ -32,7 +32,7 @@ class StoreAssetComponentRequest extends FormRequest
             'asset_component_category_id' => [
                 'required',
                 'integer',
-                'exists:asset_component_categories'
+                'exists:asset_component_categories,id'
             ],
             'manufacturer_id' => [
                 'nullable',

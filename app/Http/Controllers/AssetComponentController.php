@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\AssetComponent;
 use App\Http\Requests\StoreAssetComponentRequest;
 use App\Http\Requests\UpdateAssetComponentRequest;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class AssetComponentController extends Controller
 {
@@ -13,9 +15,53 @@ class AssetComponentController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return true;
+        $validated = $request->validate([
+            'per_page' => 'integer|nullable|min:2|max:30',
+            'search' => 'string|nullable|min:1|max:30',
+            'sort' => [
+                'string',
+                Rule::in(['id', 'created_at', 'updated_at', 'name', 'serial'])
+            ],
+            'order' => [
+                'string',
+                Rule::in(['asc', 'desc']),
+            ],
+            'search' => [
+                'string',
+                'nullable',
+                'max:64',
+                'min:1'
+            ],
+            'asset_id' => [
+                'integer',
+                'exists:assets,id'
+            ]
+        ]);
+
+        $model = AssetComponent::with(['assetComponentCategory', 'manufacturer'])
+            ->withCount(['asset']);
+
+        if ($validated['search'] ?? false) {
+            // This separated so it doesn't colide with status check
+            $model = $model->where(function ($query) use ($validated) {
+                $query->Where('name', 'like', "%{$validated['search']}%")
+                    ->Where('serial', 'like', "%{$validated['search']}%")
+                    ->orWhereRelation('assetComponentCategory', 'name', 'like', "%{$validated['search']}%")
+                    ->orWhereRelation('manufacturer', 'name', 'like', "%{$validated['search']}%");
+            });
+        }
+
+        if (($validated['sort'] ?? null) !== null) {
+            $model = $model->orderBy($validated['sort'], ($validated['order'] ?? 'asc'));
+        }
+
+        if ($validated['asset_id'] ?? false) {
+            $model = $model->where('asset_id', $validated['asset_id']);
+        }
+
+        return $model->paginate($validated['per_page'] ?? 10);
     }
 
     /**
@@ -26,7 +72,12 @@ class AssetComponentController extends Controller
      */
     public function store(StoreAssetComponentRequest $request)
     {
-        return true;
+        $assetComponent = new AssetComponent($request->validated());
+        $saved = $assetComponent->save();
+        return response()->json([
+            "result" => $saved,
+            "model" => $saved ? $assetComponent : null,
+        ]);
     }
 
     /**
@@ -37,7 +88,7 @@ class AssetComponentController extends Controller
      */
     public function show(AssetComponent $assetComponent)
     {
-        return true;
+        return $assetComponent;
     }
 
     /**
@@ -49,7 +100,12 @@ class AssetComponentController extends Controller
      */
     public function update(UpdateAssetComponentRequest $request, AssetComponent $assetComponent)
     {
-        return true;
+        $assetComponent->fill($request->validated());
+        $result = $assetComponent->save();
+        return response()->json([
+            "result" => $result,
+            "model" => $assetComponent
+        ]);
     }
 
     /**
@@ -60,6 +116,8 @@ class AssetComponentController extends Controller
      */
     public function destroy(AssetComponent $assetComponent)
     {
-        return true;
+        return response()->json([
+            "result" => $assetComponent->delete()
+        ]);
     }
 }

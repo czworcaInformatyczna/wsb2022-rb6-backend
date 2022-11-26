@@ -13,7 +13,7 @@ class UpdateAssetComponentRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -30,7 +30,7 @@ class UpdateAssetComponentRequest extends FormRequest
             ],
             'asset_component_category_id' => [
                 'integer',
-                'exists:asset_component_categories'
+                'exists:asset_component_categories,id'
             ],
             'manufacturer_id' => [
                 'nullable',
