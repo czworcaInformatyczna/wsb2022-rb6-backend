@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
+use Spatie\Permission\Models\Role;
 
 use function PHPUnit\Framework\isNull;
 
@@ -297,11 +298,16 @@ class UserController extends Controller
             'user_id' => 'integer|required',
             'role' => 'string|required'
         ]);
+        if (!Role::where('name', $validated['role'])->first()) {
+            return response()->json([
+                'message' => 'There is no role ' . $validated['role']
+            ], 400);
+        }
         $user = User::find($validated['user_id']);
         if ($user) {
             $user->removeRole($validated['role']);
             return response()->json([
-                'message' => 'All roles of user with id ' . $validated['user_id'] . ' has been removed'
+                'message' => 'Role ' . $validated["role"] . ' has been removed form user with id ' . $validated['user_id']
             ]);
         }
         return response()->json([
