@@ -320,10 +320,10 @@ class UserController extends Controller
         $validated = $request->validate([
             'users' => 'array|required',
             'users.*' => 'integer|distinct',
-            'id' => 'integer|required'
+            'id' => 'string|required'
         ]);
 
-        $role = Role::find($validated['id']);
+        $role = Role::where('name', $validated['id'])->first();
 
         if (!$role) {
             return response()->json([
@@ -332,7 +332,7 @@ class UserController extends Controller
         }
 
         foreach ($validated['users'] as $user_id) {
-            User::find($user_id)->syncRoles([$role->name]);
+            User::find($user_id)->syncRoles([$validated['id']]);
         }
 
         return response()->json([
