@@ -8,6 +8,8 @@ use App\Http\Controllers\AssetCategoryController;
 use App\Http\Controllers\ManufacturerController;
 use App\Http\Controllers\AssetModelController;
 use App\Http\Controllers\Api\ThemesController;
+use App\Http\Controllers\AssetComponentCategoryController;
+use App\Http\Controllers\AssetComponentController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\PermissionTestController;
 use App\Http\Controllers\RoleController;
@@ -74,6 +76,8 @@ Route::group(['middleware' => ['auth:sanctum', 'auth.token:RefreshAccessToken']]
     Route::get('log', [LogController::class, 'index']);
 
     Route::apiResource('asset_maintenance', AssetMaintenanceController::class);
+    Route::apiResource('asset_component_category', AssetComponentCategoryController::class);
+    Route::apiResource('asset_component', AssetComponentController::class);
 });
 
 Route::POST('/forgotpassword', [SanctumController::class, 'forgotPassword']);
