@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Validator;
+use App\Models\User;
 
 class RoleController extends Controller
 {
@@ -116,7 +117,7 @@ class RoleController extends Controller
      */
     public function show($id)
     {
-        $role = Role::find($id);
+        $role = Role::select(['id', 'name'])->find($id);
         $rolePermissions = Permission::join('role_has_permissions', 'role_has_permissions.permission_id', 'permissions.id')
             ->where('role_has_permissions.role_id', $id)
             ->select(['id', 'name'])
@@ -178,7 +179,7 @@ class RoleController extends Controller
         $role->syncPermissions($request->input('permissions'));
 
         return response()->json([
-            'message' => 'Role created successfully'
+            'message' => 'Role updated successfully'
         ]);
     }
 
@@ -195,5 +196,19 @@ class RoleController extends Controller
         return response()->json([
             'message' => 'Role removed successfully'
         ]);
+    }
+
+    public function rolesWithUsers(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'per_page' => 'integer|nullable|max:100'
+        ]);
+
+        $role = Role::select('name')->find($id)->toArray();
+        $users = User::select('id', 'name', 'surname', 'phone_number', 'avatar', 'email')->whereHas("roles", function ($q) use ($role) {
+            $q->where("name", $role['name']);
+        })->paginate($validated['per_page'] ?? 25);
+        //$role['users'] = $users;
+        return $users;
     }
 }

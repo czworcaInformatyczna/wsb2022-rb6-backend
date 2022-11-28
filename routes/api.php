@@ -8,12 +8,16 @@ use App\Http\Controllers\AssetCategoryController;
 use App\Http\Controllers\ManufacturerController;
 use App\Http\Controllers\AssetModelController;
 use App\Http\Controllers\Api\ThemesController;
+use App\Http\Controllers\AssetComponentCategoryController;
+use App\Http\Controllers\AssetComponentController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\PermissionTestController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AssetController;
 use App\Http\Controllers\AssetFileController;
+use App\Http\Controllers\AssetMaintenanceController;
+use App\Http\Controllers\LogController;
 use App\Http\Controllers\StatisticsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -71,12 +75,19 @@ Route::group(['middleware' => ['auth:sanctum', 'auth.token:RefreshAccessToken']]
     Route::get('/asset_file/{assetFile}/download', [AssetFileController::class, 'download']);
 
     Route::get('/statistics', [StatisticsController::class, 'index']);
+
+    Route::get('log', [LogController::class, 'index']);
+
+    Route::apiResource('asset_maintenance', AssetMaintenanceController::class);
+    Route::apiResource('asset_component_category', AssetComponentCategoryController::class);
+    Route::apiResource('asset_component', AssetComponentController::class);
 });
+
 Route::POST('/forgotpassword', [SanctumController::class, 'forgotPassword']);
 Route::PATCH('/resetpassword', [SanctumController::class, 'resetPassword']);
 Route::POST('/logout', [SanctumController::class, 'logout'])->middleware(['auth:sanctum']);
 Route::GET('/themes', [ThemesController::class, 'get']);
 Route::GET('/languages', [LanguagesController::class, 'get']);
 
-Route::apiResource('/role', RoleController::class);
+
 Route::get('/avatar/{id}', [UserController::class, 'showAvatar']);

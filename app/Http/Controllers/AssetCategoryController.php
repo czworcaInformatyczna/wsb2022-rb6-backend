@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\LogActionType;
+use App\Enums\LogItemType;
 use App\Models\AssetCategory;
 use App\Http\Requests\StoreAssetCategoryRequest;
 use App\Http\Requests\UpdateAssetCategoryRequest;
+use App\Models\Log;
 
 class AssetCategoryController extends Controller
 {
@@ -36,7 +39,18 @@ class AssetCategoryController extends Controller
     public function store(StoreAssetCategoryRequest $request)
     {
         $category = new AssetCategory($request->validated());
+
+        $dirty = $category->getDirty();
+
         $saved = $category->save();
+
+        Log::newEntry(
+            LogActionType::Created,
+            $dirty,
+            LogItemType::AssetCategory,
+            $category->id
+        );
+
         return response()->json([
             "result" => $saved,
             "model" => $saved ? $category : null
@@ -64,7 +78,18 @@ class AssetCategoryController extends Controller
     public function update(UpdateAssetCategoryRequest $request, AssetCategory $assetCategory)
     {
         $assetCategory->fill($request->validated());
+
+        $dirty = $assetCategory->getDirty();
+
         $assetCategory->save();
+
+        Log::newEntry(
+            LogActionType::Updated,
+            $dirty,
+            LogItemType::AssetCategory,
+            $assetCategory->id
+        );
+
         return response()->json([
             "result" => "success",
             "assetCategory" => $assetCategory

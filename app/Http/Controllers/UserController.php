@@ -120,7 +120,7 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        return User::where('id', $id)->first()->roles;
+        return User::where('id', $id)->select(['id', 'name', 'surname', 'phone_number', 'email'])->with(['roles', 'assets'])->first();
     }
 
     /**
@@ -215,9 +215,9 @@ class UserController extends Controller
     public function activateAccount(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'email' => 'required',
-            'password' => 'required',
-            'new_password' => 'string|required|confirmed'
+            'email' => 'email|required',
+            'token' => 'string|required',
+            'password' => 'string|required|confirmed'
         ]);
         if ($validator->fails()) {
             return response()->json(
@@ -228,7 +228,7 @@ class UserController extends Controller
 
         if (!Auth::attempt([
             'email' => $request->email,
-            'password' => $request->password
+            'password' => $request->token
         ])) {
             return response()->json([
                 'message' => 'Invalid login details'
@@ -242,7 +242,7 @@ class UserController extends Controller
             ], 405);
         }
         User::where('email', $request->email)->first()->update([
-            'password' => Hash::make($request->new_password),
+            'password' => Hash::make($request->password),
             'email_verified_at' => Carbon::now()
         ]);
         return response()->json([
@@ -279,7 +279,9 @@ class UserController extends Controller
                     'avatar' => $filename
                 ]);
         }
-        return 'Details were updated successfuly';
+        return response()->json([
+            'message' => 'Details were updated successfuly'
+        ]);
     }
 
     public function showAvatar($id)
