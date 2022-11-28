@@ -54,14 +54,17 @@ Route::group(['middleware' => ['auth:sanctum', 'auth.token:RefreshAccessToken']]
     Route::PATCH('/languages', [CookiesController::class, 'patchLanguages']);
     Route::apiResource('asset_category', AssetCategoryController::class);
     Route::apiResource('asset_model', AssetModelController::class);
-    Route::patch('/user/massassign', [UserController::class, 'massAssignRoles']);
-    Route::delete('/user/removerole', [UserController::class, 'removeRole']);
+    Route::patch('/user/massassign/{id}', [UserController::class, 'massAssignRoles']);
+    Route::delete('/user/removerole/{id}', [UserController::class, 'removeRole']);
     Route::post('/user/edit', [UserController::class, 'setUserDetails']);
     Route::apiResource('/user', UserController::class);
     Route::apiResource('/permission', PermissionController::class);
     Route::get('/role/users/{id}', [RoleController::class, 'rolesWithUsers']);
     Route::apiResource('/role', RoleController::class);
-    //DEBUG
+
+    Route::get('/permission1', [PermissionTestController::class, 'permission1'])->middleware(['permission:permission1']);
+    Route::get('/permission2', [PermissionTestController::class, 'permission2'])->middleware(['permission:permission2']);
+    Route::get('/permission3', [PermissionTestController::class, 'permission3'])->middleware(['permission:permission3']);
 
     Route::apiResource('manufacturer', ManufacturerController::class);
 
