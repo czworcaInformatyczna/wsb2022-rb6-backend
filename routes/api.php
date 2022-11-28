@@ -55,7 +55,7 @@ Route::group(['middleware' => ['auth:sanctum', 'auth.token:RefreshAccessToken']]
     Route::apiResource('asset_category', AssetCategoryController::class);
     Route::apiResource('asset_model', AssetModelController::class);
     Route::patch('/user/massassign/{id}', [UserController::class, 'massAssignRoles']);
-    Route::delete('/user/removerole/{id}', [UserController::class, 'removeRole']);
+    Route::patch('/user/removerole/{id}', [UserController::class, 'removeRole']);
     Route::post('/user/edit', [UserController::class, 'setUserDetails']);
     Route::apiResource('/user', UserController::class);
     Route::apiResource('/permission', PermissionController::class);
