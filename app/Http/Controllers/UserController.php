@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
+use Spatie\Permission\Models\Role;
 
 use function PHPUnit\Framework\isNull;
 
@@ -77,13 +78,25 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        $this->validate($request, [
+        $validated = $request->validate([
             'name' => 'string|required',
             'surname' => 'string|required',
             'email' => 'required|email|unique:users,email',
             'roles' => 'array|required'
         ]);
 
+        $rolesErrors = [];
+        foreach ($validated['roles'] as $role) {
+            if (!Role::where('name', $role)->first()) {
+                array_push($rolesErrors, $role);
+            }
+        }
+        if (sizeof($rolesErrors) != 0) {
+            return response()->json([
+                'message' => 'One or more of chosen permisions does not exist',
+                'non exisiting roles' => $rolesErrors
+            ]);
+        }
         $input = $request->all();
         //$input['password'] = Hash::make(Str::random(16));
         $input['password'] = Hash::make('password');
@@ -130,11 +143,25 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $this->validate($request, [
+        $validated = $request->validate([
             'name' => 'required',
             'email' => 'nullable|email',
             'roles' => 'array|required'
         ]);
+
+        $rolesErrors = [];
+        foreach ($validated['roles'] as $role) {
+            if (!Role::where('name', $role)->first()) {
+                array_push($rolesErrors, $role);
+            }
+        }
+        if (sizeof($rolesErrors) != 0) {
+            return response()->json([
+                'message' => 'One or more of chosen permisions does not exist',
+                'non exisiting roles' => $rolesErrors
+            ]);
+        }
+
         if (($request->email == null) || ($request->email == User::where('id', $id)->first()->email)) {
             User::where('email', $request->email)->update([
                 'name' => $request->name,
@@ -287,5 +314,51 @@ class UserController extends Controller
             return true;
         }
         return false;
+    }
+
+    public function removeRole(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'role' => 'string|required'
+        ]);
+        if (!Role::where('name', $validated['role'])->first()) {
+            return response()->json([
+                'message' => 'There is no role ' . $validated['role']
+            ], 400);
+        }
+        $user = User::find($id);
+        if ($user) {
+            $user->removeRole($validated['role']);
+            return response()->json([
+                'message' => 'Role ' . $validated["role"] . ' has been removed form user with id ' . $id
+            ]);
+        }
+        return response()->json([
+            'message' => 'There is no user with id ' . $id
+        ], 400);
+    }
+
+    public function massAssignRoles(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'users' => 'array|required',
+            'users.*' => 'integer|distinct',
+        ]);
+
+        $role = Role::where('name', $id)->first();
+
+        if (!$role) {
+            return response()->json([
+                'message' => 'Role with id ' . $id . ' does not exist'
+            ]);
+        }
+
+        foreach ($validated['users'] as $user_id) {
+            User::find($user_id)->assignRole($id);
+        }
+
+        return response()->json([
+            'message' => 'Success'
+        ]);
     }
 }

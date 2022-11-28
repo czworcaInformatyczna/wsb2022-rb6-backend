@@ -43,21 +43,25 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::POST('/login', [SanctumController::class, 'login']);
 Route::patch('/activateaccount', [UserController::class, 'activateAccount']);
 
-Route::group(['middleware' => ['auth:sanctum', 'auth.token:RefreshAccessToken']], function(){
+Route::group(['middleware' => ['auth:sanctum', 'auth.token:RefreshAccessToken']], function () {
     Route::GET('/name', [ShowNameController::class, 'showName']);
     Route::PATCH('/changepassword', [SanctumController::class, 'changePassword']);
     Route::PATCH('/themes', [CookiesController::class, 'patchThemes']);
     Route::PATCH('/languages', [CookiesController::class, 'patchLanguages']);
     Route::apiResource('asset_category', AssetCategoryController::class);
     Route::apiResource('asset_model', AssetModelController::class);
+    Route::patch('/user/massassign/{id}', [UserController::class, 'massAssignRoles']);
+    Route::delete('/user/removerole/{id}', [UserController::class, 'removeRole']);
     Route::post('/user/edit', [UserController::class, 'setUserDetails']);
     Route::apiResource('/user', UserController::class);
     Route::apiResource('/permission', PermissionController::class);
+    Route::get('/role/users/{id}', [RoleController::class, 'rolesWithUsers']);
+    Route::apiResource('/role', RoleController::class);
 
-    //DEBUG
     Route::get('/permission1', [PermissionTestController::class, 'permission1'])->middleware(['permission:permission1']);
     Route::get('/permission2', [PermissionTestController::class, 'permission2'])->middleware(['permission:permission2']);
     Route::get('/permission3', [PermissionTestController::class, 'permission3'])->middleware(['permission:permission3']);
+
     Route::apiResource('manufacturer', ManufacturerController::class);
 
     Route::get('/asset/{asset}/qr', [AssetController::class, 'qr_code']);
@@ -67,7 +71,6 @@ Route::group(['middleware' => ['auth:sanctum', 'auth.token:RefreshAccessToken']]
     Route::get('/asset_file/{assetFile}/download', [AssetFileController::class, 'download']);
 
     Route::get('/statistics', [StatisticsController::class, 'index']);
-
 });
 Route::POST('/forgotpassword', [SanctumController::class, 'forgotPassword']);
 Route::PATCH('/resetpassword', [SanctumController::class, 'resetPassword']);
@@ -77,5 +80,3 @@ Route::GET('/languages', [LanguagesController::class, 'get']);
 
 Route::apiResource('/role', RoleController::class);
 Route::get('/avatar/{id}', [UserController::class, 'showAvatar']);
-
-
