@@ -29,7 +29,7 @@ class StoreAssetRequest extends FormRequest
             'name' => 'required|string|min:0|max:250',
             'tag' => 'required|string|min:1|max:30|unique:assets,tag',
             'asset_model_id' => 'required|integer|exists:asset_models,id',
-            'image' => 'regex:/^data:image\/((png)|(jpg)|(jpeg));base64,(?:[A-Za-z0-9+\/]{4})*(?:[A-Za-z0-9+\/]{2}==|[A-Za-z0-9+\/]{3}=)?$/',
+            'image' => 'file|image|max:15000',
             'serial' => 'required|string|min:1|max:250',
             'status' => [
                 'required',

@@ -35,10 +35,6 @@ class UpdateAssetRequest extends FormRequest
                 Rule::unique('asset_models', 'name')->ignore($this->route('asset')['id'])
             ],
             'asset_model_id' => 'integer|exists:asset_models,id',
-            'image' => [
-                'regex:/^data:image\/((png)|(jpg));base64,(?:[A-Za-z0-9+\/]{4})*(?:[A-Za-z0-9+\/]{2}==|[A-Za-z0-9+\/]{3}=)?$/',
-                'nullable'
-            ],
             'serial' => 'string|min:1|max:250',
             'status' => [
                 new Enum(AssetStatus::class)

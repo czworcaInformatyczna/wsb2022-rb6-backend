@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Illuminate\Support\Facades\DB;
 
 class AssetController extends Controller
 {
@@ -88,13 +89,8 @@ class AssetController extends Controller
      */
     public function store(StoreAssetRequest $request)
     {
-        $validated = $request->validated();
-        if (array_key_exists('image', $validated)) {
-            // Separate image from the rest of the array
-            $image = $validated['image'];
 
-            $validated['image'] = $this->parse_image($image);
-        }
+        $validated = $request->validated();
 
         // Create model
         $asset = new Asset($validated);
@@ -109,9 +105,26 @@ class AssetController extends Controller
             $asset->current_holder_id = null;
         }
 
+
         $dirty = $asset->getDirty(); // For logs
 
-        $saved = $asset->save();
+
+        try {
+            DB::beginTransaction();
+
+            if (($validated['image'] ?? null) != null) {
+                $asset->image = $this->parseImage($asset, $validated['image']);
+            }
+
+            $asset->save();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json([
+                "message" => "Error occured during image upload"
+            ], 400);
+        }
+
+        DB::commit();
 
         Log::newEntry(
             LogActionType::Created,
@@ -121,8 +134,8 @@ class AssetController extends Controller
         );
 
         return response()->json([
-            "result" => $saved,
-            "model" => $saved ? $asset : null
+            "result" => true,
+            "model" => $asset
         ]);
     }
 
@@ -146,14 +159,9 @@ class AssetController extends Controller
      */
     public function update(UpdateAssetRequest $request, Asset $asset)
     {
+        dd($request->validated(), $request->input());
         $validated = $request->validated();
-        if (array_key_exists('image', $validated) && !$validated['image']) {
-            unset($validated['image']);
-            $asset->image = null;
-        } else if (array_key_exists('image', $validated)) {
-            // Separate image from the rest of the array
-            $validated['image'] = $this->parse_image($validated['image']);
-        }
+
         $asset->fill($validated);
 
         if ($asset->must_have_holder() && !$asset->current_holder_id) {
@@ -199,19 +207,11 @@ class AssetController extends Controller
         return QrCode::errorCorrection('H')->size(300)->generate($asset->id);
     }
 
-    public static function parse_image($image): string
+    public static function parseImage(Asset $asset, $image): string
     {
-        // Process image
-        $imageName = Carbon::now()->timestamp . "-" . Str::random(15);
-        $imageFormat = Str::substr(Str::lower(Str::before($image, ';')), 11);
-
-        $image = str_replace(Str::before($image, '64,') . '64,', '', $image);
-        $image = str_replace(' ', '+', $image);
-
-        $imageFullName = $imageName . '.' . $imageFormat;
-
-        Storage::disk('public')->put($imageFullName, base64_decode($image));
-
-        return $imageFullName;
+        $fileName = $asset->id . '.' . $image->getClientOriginalExtension();
+        Storage::delete('asset_image\\' . $fileName);
+        Storage::putFileAs('asset_image', $image, $fileName);
+        return $fileName;
     }
 }
