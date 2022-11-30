@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\AssetStatus;
 use App\Enums\LogActionType;
 use App\Enums\LogItemType;
+use App\Http\Requests\StoreAssetImageRequest;
 use App\Models\Asset;
 use App\Http\Requests\StoreAssetRequest;
 use App\Http\Requests\UpdateAssetRequest;
@@ -113,6 +114,8 @@ class AssetController extends Controller
             DB::beginTransaction();
 
             if (($validated['image'] ?? null) != null) {
+                // Save to get $asset->id
+                $asset->save();
                 $asset->image = $this->parseImage($asset, $validated['image']);
             }
 
@@ -159,7 +162,6 @@ class AssetController extends Controller
      */
     public function update(UpdateAssetRequest $request, Asset $asset)
     {
-        dd($request->validated(), $request->input());
         $validated = $request->validated();
 
         $asset->fill($validated);
@@ -199,7 +201,53 @@ class AssetController extends Controller
      */
     public function destroy(Asset $asset)
     {
-        return $asset->delete();
+        Storage::delete('asset_image\\' . $asset->image);
+        return response()->json([
+            "result" => "success"
+        ]);
+    }
+
+    public function downloadImage(Asset $asset)
+    {
+        if ($asset->image == null) {
+            return response()->json([
+                "message" => "This asset has no image"
+            ], 400);
+        }
+        return Storage::download('asset_image/' . $asset->image);
+    }
+
+    public function storeImage(StoreAssetImageRequest $request, Asset $asset)
+    {
+        DB::beginTransaction();
+
+        try {
+            // Save to get $asset->id (used in filename)
+            $asset->image = $this->parseImage($asset, $request->validated()['image']);
+            $asset->save();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json([
+                "message" => "Error occured during image upload"
+            ], 400);
+        }
+
+        DB::commit();
+
+        return response()->json([
+            "result" => "success",
+            "model" => $asset
+        ]);
+    }
+
+    public function destroyImage(Asset $asset)
+    {
+        $asset->image = null;
+        $asset->save();
+        Storage::delete('asset_image\\' . $asset->image);
+        return response()->json([
+            "result" => "success"
+        ]);
     }
 
     public function qr_code(Asset $asset)
