@@ -207,6 +207,12 @@ class AssetController extends Controller
         ]);
     }
 
+    /**
+     * Downloads image of an asset
+     *
+     * @param Asset $asset
+     * @return \Illuminate\Http\Response
+     */
     public function downloadImage(Asset $asset)
     {
         if ($asset->image == null) {
@@ -217,6 +223,13 @@ class AssetController extends Controller
         return Storage::download('asset_image/' . $asset->image);
     }
 
+    /**
+     * Insert new or replace existing file in an asset
+     *
+     * @param StoreAssetImageRequest $request
+     * @param Asset $asset
+     * @return \Illuminate\Http\Response
+     */
     public function storeImage(StoreAssetImageRequest $request, Asset $asset)
     {
         DB::beginTransaction();
@@ -240,6 +253,12 @@ class AssetController extends Controller
         ]);
     }
 
+    /**
+     * Removes an asset image if it exists
+     *
+     * @param Asset $asset
+     * @return \Illuminate\Http\Response
+     */
     public function destroyImage(Asset $asset)
     {
         $asset->image = null;
@@ -250,11 +269,24 @@ class AssetController extends Controller
         ]);
     }
 
+    /**
+     * Returns $asset->id as a QR Code
+     *
+     * @param Asset $asset
+     * @return \Illuminate\Http\Response
+     */
     public function qr_code(Asset $asset)
     {
         return QrCode::errorCorrection('H')->size(300)->generate($asset->id);
     }
 
+    /**
+     * Saves given image and assigns it to an asset
+     *
+     * @param Asset $asset
+     * @param \Illuminate\Http\File|\Illuminate\Http\UploadedFile $image
+     * @return string
+     */
     public static function parseImage(Asset $asset, $image): string
     {
         $fileName = $asset->id . '.' . $image->getClientOriginalExtension();
