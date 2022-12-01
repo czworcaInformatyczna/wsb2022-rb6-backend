@@ -68,6 +68,10 @@ Route::group(['middleware' => ['auth:sanctum', 'auth.token:RefreshAccessToken']]
 
     Route::apiResource('manufacturer', ManufacturerController::class);
 
+    Route::delete('asset/{asset}/image', [AssetController::class, 'destroyImage']);
+    Route::post('asset/{asset}/image', [AssetController::class, 'storeImage']);
+    Route::get('asset/{asset}/image', [AssetController::class, 'downloadImage']);
+
     Route::get('/asset/{asset}/qr', [AssetController::class, 'qr_code']);
     Route::apiResource('asset', AssetController::class);
 

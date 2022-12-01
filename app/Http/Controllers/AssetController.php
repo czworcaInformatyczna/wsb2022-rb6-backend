@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\AssetStatus;
 use App\Enums\LogActionType;
 use App\Enums\LogItemType;
+use App\Http\Requests\StoreAssetImageRequest;
 use App\Exports\AssetsExport;
 use App\Models\Asset;
 use App\Http\Requests\StoreAssetRequest;
@@ -17,6 +18,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Illuminate\Support\Facades\DB;
 
 class AssetController extends Controller
 {
@@ -99,13 +101,8 @@ class AssetController extends Controller
      */
     public function store(StoreAssetRequest $request)
     {
-        $validated = $request->validated();
-        if (array_key_exists('image', $validated)) {
-            // Separate image from the rest of the array
-            $image = $validated['image'];
 
-            $validated['image'] = $this->parse_image($image);
-        }
+        $validated = $request->validated();
 
         // Create model
         $asset = new Asset($validated);
@@ -120,9 +117,28 @@ class AssetController extends Controller
             $asset->current_holder_id = null;
         }
 
+
         $dirty = $asset->getDirty(); // For logs
 
-        $saved = $asset->save();
+
+        try {
+            DB::beginTransaction();
+
+            if (($validated['image'] ?? null) != null) {
+                // Save to get $asset->id
+                $asset->save();
+                $asset->image = $this->parseImage($asset, $validated['image']);
+            }
+
+            $asset->save();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json([
+                "message" => "Error occured during image upload"
+            ], 400);
+        }
+
+        DB::commit();
 
         Log::newEntry(
             LogActionType::Created,
@@ -132,8 +148,8 @@ class AssetController extends Controller
         );
 
         return response()->json([
-            "result" => $saved,
-            "model" => $saved ? $asset : null
+            "result" => true,
+            "model" => $asset
         ]);
     }
 
@@ -158,13 +174,7 @@ class AssetController extends Controller
     public function update(UpdateAssetRequest $request, Asset $asset)
     {
         $validated = $request->validated();
-        if (array_key_exists('image', $validated) && !$validated['image']) {
-            unset($validated['image']);
-            $asset->image = null;
-        } else if (array_key_exists('image', $validated)) {
-            // Separate image from the rest of the array
-            $validated['image'] = $this->parse_image($validated['image']);
-        }
+
         $asset->fill($validated);
 
         if ($asset->must_have_holder() && !$asset->current_holder_id) {
@@ -202,27 +212,97 @@ class AssetController extends Controller
      */
     public function destroy(Asset $asset)
     {
-        return $asset->delete();
+        Storage::delete('asset_image\\' . $asset->image);
+        return response()->json([
+            "result" => "success"
+        ]);
     }
 
+    /**
+     * Downloads image of an asset
+     *
+     * @param Asset $asset
+     * @return \Illuminate\Http\Response
+     */
+    public function downloadImage(Asset $asset)
+    {
+        if ($asset->image == null) {
+            return response()->json([
+                "message" => "This asset has no image"
+            ], 400);
+        }
+        return Storage::download('asset_image/' . $asset->image);
+    }
+
+    /**
+     * Insert new or replace existing file in an asset
+     *
+     * @param StoreAssetImageRequest $request
+     * @param Asset $asset
+     * @return \Illuminate\Http\Response
+     */
+    public function storeImage(StoreAssetImageRequest $request, Asset $asset)
+    {
+        DB::beginTransaction();
+
+        try {
+            // Save to get $asset->id (used in filename)
+            $asset->image = $this->parseImage($asset, $request->validated()['image']);
+            $asset->save();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json([
+                "message" => "Error occured during image upload"
+            ], 400);
+        }
+
+        DB::commit();
+
+        return response()->json([
+            "result" => "success",
+            "model" => $asset
+        ]);
+    }
+
+    /**
+     * Removes an asset image if it exists
+     *
+     * @param Asset $asset
+     * @return \Illuminate\Http\Response
+     */
+    public function destroyImage(Asset $asset)
+    {
+        $asset->image = null;
+        $asset->save();
+        Storage::delete('asset_image\\' . $asset->image);
+        return response()->json([
+            "result" => "success"
+        ]);
+    }
+
+    /**
+     * Returns $asset->id as a QR Code
+     *
+     * @param Asset $asset
+     * @return \Illuminate\Http\Response
+     */
     public function qr_code(Asset $asset)
     {
         return QrCode::errorCorrection('H')->size(300)->generate($asset->id);
     }
 
-    public static function parse_image($image): string
+    /**
+     * Saves given image and assigns it to an asset
+     *
+     * @param Asset $asset
+     * @param \Illuminate\Http\File|\Illuminate\Http\UploadedFile $image
+     * @return string
+     */
+    public static function parseImage(Asset $asset, $image): string
     {
-        // Process image
-        $imageName = Carbon::now()->timestamp . "-" . Str::random(15);
-        $imageFormat = Str::substr(Str::lower(Str::before($image, ';')), 11);
-
-        $image = str_replace(Str::before($image, '64,') . '64,', '', $image);
-        $image = str_replace(' ', '+', $image);
-
-        $imageFullName = $imageName . '.' . $imageFormat;
-
-        Storage::disk('public')->put($imageFullName, base64_decode($image));
-
-        return $imageFullName;
+        $fileName = $asset->id . '.' . $image->getClientOriginalExtension();
+        Storage::delete('asset_image\\' . $fileName);
+        Storage::putFileAs('asset_image', $image, $fileName);
+        return $fileName;
     }
 }
