@@ -6,6 +6,7 @@ use App\Enums\AssetStatus;
 use App\Enums\LogActionType;
 use App\Enums\LogItemType;
 use App\Http\Requests\StoreAssetImageRequest;
+use App\Exports\AssetsExport;
 use App\Models\Asset;
 use App\Http\Requests\StoreAssetRequest;
 use App\Http\Requests\UpdateAssetRequest;
@@ -51,6 +52,9 @@ class AssetController extends Controller
             'status' => [
                 'integer',
                 new Enum(AssetStatus::class)
+            ],
+            'export' => [
+                Rule::in(['true', 'false', true, false])
             ]
         ]);
 
@@ -77,6 +81,13 @@ class AssetController extends Controller
 
         if (($validated['sort'] ?? null) !== null) {
             $asset = $asset->orderBy($validated['sort'], ($validated['order'] ?? 'asc'));
+        }
+
+        if (
+            ($validated['export'] ?? null === 'true') ||
+            ($validated['export'] ?? null === true)
+        ) {
+            return (new AssetsExport($asset))->download('assets.xlsx');
         }
 
         return $asset->paginate($validated['per_page'] ?? 10);

@@ -81,7 +81,7 @@ class RoleController extends Controller
 
         if (Role::where('name', $request->name)->first()) {
             return response()->json([
-                'error' => 'User ' . $request->name . ' already exists'
+                'error' => 'Role ' . $request->name . ' already exists'
             ], 400);
         }
 
@@ -98,7 +98,10 @@ class RoleController extends Controller
             ]);
         }
 
-        $role = Role::create(['name' => $request->input('name')]);
+        $role = Role::create([
+            'name' => $request->input('name'),
+            'guard_name' => 'web'
+        ]);
         $role->syncPermissions($request->input('permissions'));
 
         return response()->json([
@@ -150,7 +153,7 @@ class RoleController extends Controller
         if (Role::where('id', $id)->select('name')->first()->name != $request->name) {
             if (Role::where('name', $request->name)->first()) {
                 return response()->json([
-                    'error' => 'User ' . $request->name . ' already exists'
+                    'error' => 'Role ' . $request->name . ' already exists'
                 ], 400);
             }
         }
@@ -158,7 +161,7 @@ class RoleController extends Controller
         $permissionsErrors = [];
         foreach ($request->permissions as $permission) {
             if (!Permission::where('name', $permission)->first()) {
-                $permission = array_push($permissionsErrors, $permission);
+                array_push($permissionsErrors, $permission);
             }
         }
 
