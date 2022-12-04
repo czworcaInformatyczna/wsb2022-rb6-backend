@@ -70,6 +70,6 @@ class User extends Authenticatable
 
     public function licences()
     {
-        return $this->belongsToMany(Licence::class);
+        return $this->morphToMany(Licence::class, 'licencable');
     }
 }

@@ -12,7 +12,8 @@ class LicenceCategory extends Model
         'name'
     ];
 
-    public function licence(){
-        return $this->belongsTo(Licence::class, 'category_id', 'id');
+    public function licences()
+    {
+        return $this->hasMany(Licence::class, 'category_id', 'id');
     }
 }

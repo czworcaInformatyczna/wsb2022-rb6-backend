@@ -13,10 +13,14 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('licence_user', function (Blueprint $table) {
+        Schema::create('licencables', function (Blueprint $table) {
             $table->id();
             $table->foreignId('licence_id');
-            $table->foreignId('user_id');
+            $table->foreignId('licencable_id');
+            $table->string('licencable_type');
+            $table->foreign('licence_id')
+                ->references('id')
+                ->on('licences');
             $table->timestamps();
         });
     }
@@ -28,6 +32,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('licence_user');
+        Schema::dropIfExists('licencables');
     }
 };

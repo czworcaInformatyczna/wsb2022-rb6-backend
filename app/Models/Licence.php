@@ -9,17 +9,19 @@ class Licence extends Model
 {
     use HasFactory;
     protected $fillable = [
+        'name',
         'manufacturer_id',
         'category_id',
         'product_key',
         'email',
+        'slots',
         'expiration_date',
         'reassignable'
     ];
 
     public function category()
     {
-        return $this->hasOne(LicenceCategory::class, 'id', 'category_id');
+        return $this->belongsTo(LicenceCategory::class);
     }
 
     public function history()
@@ -27,8 +29,18 @@ class Licence extends Model
         return $this->hasOne(LicenceHistory::class, 'licence_id', 'id');
     }
 
+    public function manufacturer()
+    {
+        return $this->belongsTo(Manufacturer::class);
+    }
+
     public function users()
     {
-        return $this->belongsToMany(User::class);
+        return $this->morphedByMany(User::class, 'licencable');
+    }
+
+    public function assets()
+    {
+        return $this->morphedByMany(Asset::class, 'licencable');
     }
 }

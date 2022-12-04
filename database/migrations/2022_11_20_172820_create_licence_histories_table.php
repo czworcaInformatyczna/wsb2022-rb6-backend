@@ -17,17 +17,19 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id');
             $table->foreignId('licence_id');
-            $table->enum('action', ['create', 'edit', 'assign', 'unassign']);
+            $table->enum('action', ['create', 'edit', 'assign', 'unassign', 'delete']);
             $table->string('target')
                 ->nullable();
             $table->string('model');
             $table->string('model_id');
             $table->foreign('user_id')
                 ->references('id')
-                ->on('users');
+                ->on('users')
+                ->onDelete('cascade');
             $table->foreign('licence_id')
                 ->references('id')
-                ->on('licences');
+                ->on('licences')
+                ->onDelete('cascade');
             $table->timestamps();
         });
     }

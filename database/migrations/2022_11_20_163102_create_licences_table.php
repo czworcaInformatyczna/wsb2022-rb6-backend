@@ -15,6 +15,7 @@ return new class extends Migration
     {
         Schema::create('licences', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
             $table->foreignId('manufacturer_id');
             $table->foreignId('category_id');
             $table->string('product_key');
@@ -24,10 +25,12 @@ return new class extends Migration
             $table->integer('slots');
             $table->foreign('manufacturer_id')
                 ->references('id')
-                ->on('manufacturers');
+                ->on('manufacturers')
+                ->onDelete('cascade');
             $table->foreign('category_id')
                 ->references('id')
-                ->on('licence_categories');
+                ->on('licence_categories')
+                ->onDelete('cascade');
             $table->timestamps();
         });
     }
