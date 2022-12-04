@@ -17,6 +17,10 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\AssetController;
 use App\Http\Controllers\AssetFileController;
 use App\Http\Controllers\AssetMaintenanceController;
+use App\Http\Controllers\LicencablesController;
+use App\Http\Controllers\LicenceCategoryController;
+use App\Http\Controllers\LicenceController;
+use App\Http\Controllers\LicenceFileController;
 use App\Http\Controllers\LogController;
 use App\Http\Controllers\StatisticsController;
 use Illuminate\Http\Request;
@@ -61,6 +65,19 @@ Route::group(['middleware' => ['auth:sanctum', 'auth.token:RefreshAccessToken']]
     Route::apiResource('/permission', PermissionController::class);
     Route::get('/role/users/{id}', [RoleController::class, 'rolesWithUsers']);
     Route::apiResource('/role', RoleController::class);
+
+    Route::prefix('licence')->group(function () {
+        Route::apiResource('/category', LicenceCategoryController::class);
+        Route::apiResource('/', LicenceController::class);
+        Route::get('/{id}', [LicenceController::class, 'show']);
+        Route::patch('/{id}', [LicenceController::class, 'update']);
+        Route::delete('/{id}', [LicenceController::class, 'destroy']);
+        Route::get('/{id}/history', [LicenceController::class, 'showHistory']);
+        Route::get('/{licenceId}/file/{id}/download', [LicenceFileController::class, 'download']);
+        Route::apiResource('/{licenceId}/licencables', LicencablesController::class);
+        Route::apiResource('/{licenceId}/file', LicenceFileController::class);
+    });
+
 
     Route::get('/permission1', [PermissionTestController::class, 'permission1'])->middleware(['permission:permission1']);
     Route::get('/permission2', [PermissionTestController::class, 'permission2'])->middleware(['permission:permission2']);

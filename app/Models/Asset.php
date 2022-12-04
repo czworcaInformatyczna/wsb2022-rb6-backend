@@ -47,16 +47,21 @@ class Asset extends Model
 
     public function can_have_holder(): bool
     {
-        return match($this->status) {
+        return match ($this->status) {
             AssetStatus::Archived, AssetStatus::Ready => false,
             AssetStatus::Serviced, AssetStatus::HandedOver => true
         };
     }
     public function must_have_holder(): bool
     {
-        return match($this->status) {
+        return match ($this->status) {
             AssetStatus::Archived, AssetStatus::Ready, AssetStatus::Serviced => false,
             AssetStatus::HandedOver => true
         };
+    }
+
+    public function licences()
+    {
+        return $this->morphToMany(Licence::class, 'licencable');
     }
 }
