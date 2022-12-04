@@ -62,6 +62,16 @@ class Log extends Model
     }
 
     /**
+     * Returns a user that performed given action
+     *
+     * @return User|null
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    /**
      * Create new log entry
      *
      * @param LogActionType $actionType

@@ -50,7 +50,7 @@ class LogController extends Controller
             ]
         ]);
 
-        $log = Log::withOnly(['item', 'target']);
+        $log = Log::withOnly(['user', 'item', 'target']);
 
         if (($validated['sort'] ?? null) !== null) {
             $log = $log->orderBy($validated['sort'], ($validated['order'] ?? 'asc'));
