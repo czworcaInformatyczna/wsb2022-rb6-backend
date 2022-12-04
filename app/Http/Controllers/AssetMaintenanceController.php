@@ -41,7 +41,7 @@ class AssetMaintenanceController extends Controller
                 'exists:assets,id'
             ]
         ]);
-        $model = AssetMaintenance::query();
+        $model = AssetMaintenance::with(['user']);
 
         if ($validated['search'] ?? false) {
             // This separated so it doesn't colide with status check
