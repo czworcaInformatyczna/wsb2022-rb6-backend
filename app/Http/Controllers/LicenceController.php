@@ -172,9 +172,9 @@ class LicenceController extends Controller
                 $licenceHistory['data'][$key]['licencable'] = Licence::find($history['model_id']);
             } elseif ($history['model'] == 'LicenceFile') {
                 $licenceHistory['data'][$key]['licencable'] = LicenceFile::find($history['model_id']);
-            } elseif ($history['model'] == 'asset') {
+            } elseif ($history['model'] == 'assets') {
                 $licenceHistory['data'][$key]['licencable'] = Asset::find($history['model_id']);
-            } elseif ($history['model'] == 'user') {
+            } elseif ($history['model'] == 'users') {
                 $licenceHistory['data'][$key]['licencable'] = User::find($history['model_id']);
             }
         }
