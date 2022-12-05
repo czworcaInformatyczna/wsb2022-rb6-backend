@@ -24,7 +24,9 @@ class LicenceFileController extends Controller
         ]);
 
         $licenceFile = LicenceFile::query();
-        $licenceFile->where('licence_id', $licenceId);
+        $licenceFile->where('licence_id', $licenceId)
+            ->with('uploader');
+
         return $licenceFile->paginate($validated['per_page'] ?? 10);
     }
 
