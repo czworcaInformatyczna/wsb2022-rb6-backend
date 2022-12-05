@@ -14,7 +14,6 @@ class Asset extends Model
         'name',
         'tag',
         'asset_model_id',
-        'image',
         'serial',
         'status',
         'current_holder_id',
@@ -32,7 +31,8 @@ class Asset extends Model
 
     protected $casts = [
         'status' => AssetStatus::class,
-        'purchase_date' => 'datetime:Y-m-d'
+        'purchase_date' => 'datetime:Y-m-d',
+        'has_image' => 'boolean'
     ];
 
     public function asset_model()

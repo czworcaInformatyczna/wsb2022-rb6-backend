@@ -127,7 +127,8 @@ class AssetController extends Controller
             if (($validated['image'] ?? null) != null) {
                 // Save to get $asset->id
                 $asset->save();
-                $asset->image = $this->parseImage($asset, $validated['image']);
+                $asset->has_image = true;
+                $asset->image_extension = $this->parseImage($asset, $validated['image']);
             }
 
             $asset->save();
@@ -212,7 +213,7 @@ class AssetController extends Controller
      */
     public function destroy(Asset $asset)
     {
-        Storage::delete('asset_image\\' . $asset->image);
+        Storage::delete('asset_image\\' . $asset->id . '.' . $asset->image_extension);
         return response()->json([
             "result" => "success"
         ]);
@@ -224,14 +225,21 @@ class AssetController extends Controller
      * @param Asset $asset
      * @return \Illuminate\Http\Response
      */
-    public function downloadImage(Asset $asset)
+    public function downloadImage(Asset $asset, string $extension = null)
     {
-        if ($asset->image == null) {
+        if ($asset->has_image == null) {
             return response()->json([
                 "message" => "This asset has no image"
             ], 400);
         }
-        return Storage::download('asset_image/' . $asset->image);
+
+        if ("." . $asset->image_extension !== $extension) {
+            return response()->json([
+                "message" => "Invalid extension suffix"
+            ], 400);
+        }
+
+        return Storage::response('asset_image/' . $asset->id . '.' . $asset->image_extension);
     }
 
     /**
@@ -247,7 +255,8 @@ class AssetController extends Controller
 
         try {
             // Save to get $asset->id (used in filename)
-            $asset->image = $this->parseImage($asset, $request->validated()['image']);
+            $asset->has_image = true;
+            $asset->image_extension = $this->parseImage($asset, $request->validated()['image']);
             $asset->save();
         } catch (\Throwable $th) {
             DB::rollBack();
@@ -272,9 +281,10 @@ class AssetController extends Controller
      */
     public function destroyImage(Asset $asset)
     {
-        $asset->image = null;
+        $asset->has_image = false;
+        $asset->image_extension = null;
         $asset->save();
-        Storage::delete('asset_image\\' . $asset->image);
+        Storage::delete('asset_image\\' . $asset->id . '.' . $asset->image_extension);
         return response()->json([
             "result" => "success"
         ]);
@@ -296,13 +306,13 @@ class AssetController extends Controller
      *
      * @param Asset $asset
      * @param \Illuminate\Http\File|\Illuminate\Http\UploadedFile $image
-     * @return string
+     * @return string Extension
      */
     public static function parseImage(Asset $asset, $image): string
     {
         $fileName = $asset->id . '.' . $image->getClientOriginalExtension();
         Storage::delete('asset_image\\' . $fileName);
         Storage::putFileAs('asset_image', $image, $fileName);
-        return $fileName;
+        return $image->getClientOriginalExtension();
     }
 }
