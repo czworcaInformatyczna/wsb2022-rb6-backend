@@ -46,7 +46,7 @@ class LicencablesController extends Controller
                 'message' => 'Exceeded maximum licence slots'
             ], 400);
         }
-        if ($validated['model'] == 'users') {
+        if ($validated['model'] == 'user') {
             if (!User::find($validated['model_id'])) {
                 return response()->json([
                     'message' => 'There is no user with id ' . $validated['model_id']
@@ -70,7 +70,7 @@ class LicencablesController extends Controller
             return response()->json([
                 'message' => 'Success'
             ], 200);
-        } else if ($validated['model'] == 'assets') {
+        } else if ($validated['model'] == 'asset') {
             if (!Asset::find($validated['model_id'])) {
                 return response()->json([
                     'message' => 'There is no asset with id ' . $validated['model_id']
