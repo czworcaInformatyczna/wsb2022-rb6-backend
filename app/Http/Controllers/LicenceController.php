@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Asset;
 use App\Models\LicenceHistory;
 use App\Models\Licence;
+use App\Models\LicenceFile;
+use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 
@@ -159,9 +162,23 @@ class LicenceController extends Controller
         $validated = $request->validate([
             'per_page' => "integer|min:1|max:100"
         ]);
-        return LicenceHistory::select('id', 'user_id', 'licence_id', 'action', 'model', 'model_id', 'created_at')
+        $licenceHistory = LicenceHistory::select('id', 'user_id', 'licence_id', 'action', 'model', 'model_id', 'created_at')
             ->where('licence_id', $id)
             ->with('user')
-            ->paginate($validated['per_page'] ?? 25);
+            ->paginate($validated['per_page'] ?? 25)->toArray();
+
+        foreach ($licenceHistory['data'] as $key => $history) {
+            if ($history['model'] == 'Licence') {
+                $licenceHistory['data'][$key]['licencable'] = Licence::find($history['model_id']);
+            } elseif ($history['model'] == 'LicenceFile') {
+                $licenceHistory['data'][$key]['licencable'] = LicenceFile::find($history['model_id']);
+            } elseif ($history['model'] == 'asset') {
+                $licenceHistory['data'][$key]['licencable'] = Asset::find($history['model_id']);
+            } elseif ($history['model'] == 'user') {
+                $licenceHistory['data'][$key]['licencable'] = User::find($history['model_id']);
+            }
+        }
+
+        return $licenceHistory;
     }
 }
