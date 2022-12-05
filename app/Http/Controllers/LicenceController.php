@@ -72,10 +72,14 @@ class LicenceController extends Controller
      */
     public function show($id)
     {
-        return Licence::select('id', 'name', 'manufacturer_id', 'category_id', 'product_key', 'email', 'expiration_date', 'reassignable', 'slots')
+        $licence = Licence::select('id', 'name', 'manufacturer_id', 'category_id', 'product_key', 'email', 'expiration_date', 'reassignable', 'slots')
             ->with('manufacturer')
             ->with('category')
             ->find($id);
+        $remainingSlots = $licence->slots - $licence->users()->count() - $licence->assets()->count();
+        $response = $licence->toArray();
+        $response['remaining_slots'] = $remainingSlots;
+        return $response;
     }
 
 
