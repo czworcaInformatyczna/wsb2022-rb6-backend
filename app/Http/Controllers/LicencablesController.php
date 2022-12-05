@@ -41,7 +41,7 @@ class LicencablesController extends Controller
             ], 400);
         }
         $sum = $licence->users()->count() + $licence->assets()->count();
-        if ($licence->slots < $sum) {
+        if ($licence->slots <= $sum) {
             return response()->json([
                 'message' => 'Exceeded maximum licence slots'
             ], 400);
