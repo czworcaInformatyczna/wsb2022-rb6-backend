@@ -154,10 +154,14 @@ class LicenceController extends Controller
         ], 400);
     }
 
-    public function showHistory($id)
+    public function showHistory(Request $request, $id)
     {
-        return LicenceHistory::select('id', 'user_id', 'licence_id', 'action', 'model', 'model_id')
+        $validated = $request->validate([
+            'per_page' => "integer|min:1|max:100"
+        ]);
+        return LicenceHistory::select('id', 'user_id', 'licence_id', 'action', 'model', 'model_id', 'created_at')
             ->where('licence_id', $id)
-            ->get();
+            ->with('user')
+            ->paginate($validated['per_page'] ?? 25);
     }
 }

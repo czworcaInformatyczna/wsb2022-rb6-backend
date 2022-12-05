@@ -17,7 +17,13 @@ class LicenceHistory extends Model
         'model_id',
     ];
 
-    public function licence(){
+    public function licence()
+    {
         return $this->hasOne(Licence::class, 'id', 'licence_id');
+    }
+
+    public function user()
+    {
+        return $this->hasOne(User::class, 'id', 'user_id');
     }
 }
