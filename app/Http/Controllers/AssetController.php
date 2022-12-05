@@ -6,7 +6,7 @@ use App\Enums\AssetStatus;
 use App\Enums\LogActionType;
 use App\Enums\LogItemType;
 use App\Http\Requests\StoreAssetImageRequest;
-use App\Exports\AssetsExport;
+use App\Exports\AssetExport;
 use App\Models\Asset;
 use App\Http\Requests\StoreAssetRequest;
 use App\Http\Requests\UpdateAssetRequest;
@@ -87,7 +87,7 @@ class AssetController extends Controller
             ($validated['export'] ?? null === 'true') ||
             ($validated['export'] ?? null === true)
         ) {
-            return (new AssetsExport($asset))->download('assets.xlsx');
+            return (new AssetExport($asset))->download('assets.xlsx');
         }
 
         return $asset->paginate($validated['per_page'] ?? 10);
