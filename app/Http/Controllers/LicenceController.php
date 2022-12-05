@@ -37,7 +37,7 @@ class LicenceController extends Controller
             'slots' => 'integer|required|min:1',
             'email' => 'email',
             'expiration_date' => 'date',
-            'reassignable' => 'boolean|required'
+            'reassignable' => 'in:true,false|required'
         ]);
 
         $licence = Licence::create([
@@ -48,7 +48,7 @@ class LicenceController extends Controller
             'email' => $request->email,
             'slots' => $validated['slots'],
             'expiration_date' => $request->expiration_date,
-            'reassignable' => $validated['reassignable']
+            'reassignable' => ($validated['reassignable'] == 'true') ? 1 : 0
         ]);
 
         LicenceHistory::create([

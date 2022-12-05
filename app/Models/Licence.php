@@ -19,6 +19,10 @@ class Licence extends Model
         'reassignable'
     ];
 
+    protected $casts = [
+        'reassignable' => 'boolean',
+    ];
+
     public function category()
     {
         return $this->belongsTo(LicenceCategory::class);
