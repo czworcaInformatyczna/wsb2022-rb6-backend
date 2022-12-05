@@ -16,7 +16,9 @@ class LicenceController extends Controller
      */
     public function index()
     {
-        return Licence::paginate(25);
+        return Licence::with('manufacturer')
+            ->with('category')
+            ->paginate(25);
     }
 
     /**
