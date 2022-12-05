@@ -149,12 +149,11 @@ class LicenceFileController extends Controller
     {
         $licenceFile = LicenceFile::find($id);
         if ($licenceFile) {
-            return $modelId = $licenceFile->licence->id;
             Storage::delete('licence_files\\' . $licenceFile->id . '.' . $licenceFile->extension);
             $licenceFile->delete();
             LicenceHistory::create([
                 'user_id' => auth()->user()->id,
-                'licence_id' => $modelId,
+                'licence_id' => $licenceFile->licence->id,
                 'action' => 'delete',
                 'model' => 'LicenceFile',
                 'model_id' => $id
