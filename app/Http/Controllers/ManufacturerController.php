@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\ManufacturerExport;
 use App\Models\Manufacturer;
 use App\Http\Requests\StoreManufacturerRequest;
 use App\Http\Requests\UpdateManufacturerRequest;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class ManufacturerController extends Controller
 {
-        /**
+    /**
      * Create the controller instance.
      *
      * @return void
@@ -22,9 +25,23 @@ class ManufacturerController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return Manufacturer::all();
+        $validated = $request->validate([
+            'export' => [
+                Rule::in(['true', 'false', true, false])
+            ]
+        ]);
+
+        $manufacturer = Manufacturer::query();
+
+        if (
+            ($validated['export'] ?? null === 'true') ||
+            ($validated['export'] ?? null === true)
+        ) {
+            return (new ManufacturerExport($manufacturer))->download('manufacturer.xlsx');
+        }
+        return $manufacturer->get();
     }
 
     /**
