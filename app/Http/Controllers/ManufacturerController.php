@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\GenericExport;
 use App\Exports\ManufacturerExport;
 use App\Models\Manufacturer;
 use App\Http\Requests\StoreManufacturerRequest;
@@ -39,7 +40,7 @@ class ManufacturerController extends Controller
             ($validated['export'] ?? null === 'true') ||
             ($validated['export'] ?? null === true)
         ) {
-            return (new ManufacturerExport($manufacturer))->download('manufacturer.xlsx');
+            return (new GenericExport($manufacturer))->download('manufacturer.xlsx');
         }
         return $manufacturer->get();
     }
