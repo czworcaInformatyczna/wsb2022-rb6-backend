@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Enums\LogActionType;
 use App\Enums\LogItemType;
+use App\Exports\GenericExport;
 use App\Models\AssetCategory;
 use App\Http\Requests\StoreAssetCategoryRequest;
 use App\Http\Requests\UpdateAssetCategoryRequest;
 use App\Models\Log;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class AssetCategoryController extends Controller
 {
@@ -25,9 +28,23 @@ class AssetCategoryController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return AssetCategory::all();
+        $validated = $request->validate([
+            'export' => [
+                Rule::in(['true', 'false', true, false])
+            ]
+        ]);
+
+        $assetCategory = AssetCategory::query();
+
+        if (
+            ($validated['export'] ?? null === 'true') ||
+            ($validated['export'] ?? null === true)
+        ) {
+            return (new GenericExport($assetCategory))->download('asset_category.xlsx');
+        }
+        return $assetCategory->get();
     }
 
     /**
