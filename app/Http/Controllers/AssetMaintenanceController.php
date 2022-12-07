@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\AssetMaintenanceType;
+use App\Exports\AssetMaintenanceExport;
 use App\Models\AssetMaintenance;
 use App\Http\Requests\StoreAssetMaintenanceRequest;
 use App\Http\Requests\UpdateAssetMaintenanceRequest;
@@ -39,6 +40,9 @@ class AssetMaintenanceController extends Controller
                 'required',
                 'integer',
                 'exists:assets,id'
+            ],
+            'export' => [
+                Rule::in(['true', 'false', true, false])
             ]
         ]);
         $model = AssetMaintenance::with(['user']);
@@ -61,6 +65,13 @@ class AssetMaintenanceController extends Controller
 
         if ($validated['asset_id'] ?? false) {
             $model = $model->where('asset_id', $validated['asset_id']);
+        }
+
+        if (
+            ($validated['export'] ?? null === 'true') ||
+            ($validated['export'] ?? null === true)
+        ) {
+            return (new AssetMaintenanceExport($model->with('asset')))->download('asset_maintenance.xlsx');
         }
 
         return $model->paginate($validated['per_page'] ?? 10);
