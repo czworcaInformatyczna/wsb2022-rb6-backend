@@ -58,7 +58,7 @@ class AssetComponentCategoryController extends Controller
             ($validated['export'] ?? null === 'true') ||
             ($validated['export'] ?? null === true)
         ) {
-            return (new GenericExport($model))->download('asset_component_model.xlsx');
+            return (new GenericExport($model))->download('asset_component_category.xlsx');
         }
 
         return $model->paginate($validated['per_page'] ?? 10);
