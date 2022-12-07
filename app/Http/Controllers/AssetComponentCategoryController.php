@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\GenericExport;
 use App\Models\AssetComponentCategory;
 use App\Http\Requests\StoreAssetComponentCategoryRequest;
 use App\Http\Requests\UpdateAssetComponentCategoryRequest;
@@ -34,6 +35,9 @@ class AssetComponentCategoryController extends Controller
                 'nullable',
                 'max:64',
                 'min:1'
+            ],
+            'export' => [
+                Rule::in(['true', 'false', true, false])
             ]
         ]);
 
@@ -48,6 +52,13 @@ class AssetComponentCategoryController extends Controller
 
         if (($validated['sort'] ?? null) !== null) {
             $model = $model->orderBy($validated['sort'], ($validated['order'] ?? 'asc'));
+        }
+
+        if (
+            ($validated['export'] ?? null === 'true') ||
+            ($validated['export'] ?? null === true)
+        ) {
+            return (new GenericExport($model))->download('asset_component_model.xlsx');
         }
 
         return $model->paginate($validated['per_page'] ?? 10);
