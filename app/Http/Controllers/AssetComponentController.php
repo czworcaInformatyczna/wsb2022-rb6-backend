@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\AssetComponentExport;
 use App\Models\AssetComponent;
 use App\Http\Requests\StoreAssetComponentRequest;
 use App\Http\Requests\UpdateAssetComponentRequest;
@@ -37,6 +38,9 @@ class AssetComponentController extends Controller
             'asset_id' => [
                 'integer',
                 'exists:assets,id'
+            ],
+            'export' => [
+                Rule::in(['true', 'false', true, false])
             ]
         ]);
 
@@ -59,6 +63,13 @@ class AssetComponentController extends Controller
 
         if ($validated['asset_id'] ?? false) {
             $model = $model->where('asset_id', $validated['asset_id']);
+        }
+
+        if (
+            ($validated['export'] ?? null === 'true') ||
+            ($validated['export'] ?? null === true)
+        ) {
+            return (new AssetComponentExport($model))->download('asset_component.xlsx');
         }
 
         return $model->paginate($validated['per_page'] ?? 10);
