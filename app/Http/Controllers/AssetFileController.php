@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\AssetFileExport;
 use App\Models\AssetFile;
 use App\Http\Requests\StoreAssetFileRequest;
 use App\Http\Requests\UpdateAssetFileRequest;
@@ -9,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class AssetFileController extends Controller
 {
@@ -32,13 +34,23 @@ class AssetFileController extends Controller
         $validated = $request->validate([
             'per_page' => 'integer|nullable|min:2|max:30',
             'search' => 'string|nullable|min:3|max:30',
-            'asset_id' => 'required|integer|exists:assets,id'
+            'asset_id' => 'required|integer|exists:assets,id',
+            'export' => [
+                Rule::in(['true', 'false', true, false])
+            ]
         ]);
 
         $model = AssetFile::query();
 
         if ($validated['asset_id'] ?? false) {
             $model = $model->where('asset_id', $validated['asset_id']);
+        }
+
+        if (
+            ($validated['export'] ?? null === 'true') ||
+            ($validated['export'] ?? null === true)
+        ) {
+            return (new AssetFileExport($model))->download('asset_file.xlsx');
         }
 
         return $model->paginate($validated['per_page'] ?? 10);
