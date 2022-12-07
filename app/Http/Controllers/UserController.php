@@ -120,7 +120,7 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        return User::where('id', $id)->select(['id', 'name', 'surname', 'phone_number', 'email'])->with(['roles', 'assets'])->first();
+        return User::where('id', $id)->select(['id', 'name', 'surname', 'phone_number', 'email'])->with(['roles', 'assets', 'licences'])->first();
     }
 
     /**
