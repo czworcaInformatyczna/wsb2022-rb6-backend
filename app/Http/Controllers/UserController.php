@@ -255,6 +255,7 @@ class UserController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'phone_number' => 'nullable|string|max:15',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:4096',
         ]);
         if ($validator->fails()) {
             return response()->json(
@@ -272,12 +273,8 @@ class UserController extends Controller
                     'phone_number' => $request->phone_number
                 ]);
         } else {
-            $image = $request->file('avatar');
             $filename = uniqid() . '.' . $request->avatar->extension();
-            $image_resize = Image::make($image->getRealPath());
-            $image_resize->resize(300, 300);
-            $image_resize->save('storage/avatars/' . $filename);
-
+            request()->avatar->move($directory, $filename);
             User::where('id', auth()->user()->id)
                 ->update([
                     'phone_number' => $request->phone_number,
