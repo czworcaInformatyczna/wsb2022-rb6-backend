@@ -65,6 +65,9 @@ Route::group(['middleware' => ['auth:sanctum', 'auth.token:RefreshAccessToken']]
     Route::apiResource('/permission', PermissionController::class);
     Route::get('/role/users/{id}', [RoleController::class, 'rolesWithUsers']);
     Route::apiResource('/role', RoleController::class);
+    Route::get('/avatar', [UserController::class, 'showAvatar']);
+    Route::get('/avatar/{id}', [UserController::class, 'showAvatar']);
+
 
     Route::prefix('licence')->group(function () {
         Route::apiResource('/category', LicenceCategoryController::class);
@@ -109,6 +112,3 @@ Route::PATCH('/resetpassword', [SanctumController::class, 'resetPassword']);
 Route::POST('/logout', [SanctumController::class, 'logout'])->middleware(['auth:sanctum']);
 Route::GET('/themes', [ThemesController::class, 'get']);
 Route::GET('/languages', [LanguagesController::class, 'get']);
-
-
-Route::get('/avatar/{id}', [UserController::class, 'showAvatar']);

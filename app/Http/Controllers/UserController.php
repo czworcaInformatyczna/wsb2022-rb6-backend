@@ -286,8 +286,11 @@ class UserController extends Controller
         ]);
     }
 
-    public function showAvatar($id)
+    public function showAvatar($id = null)
     {
+        if ($id == null) {
+            $id = Auth()->user()->id;
+        }
         $avatarName = User::where('id', $id)
             ->first();
         if ($avatarName == null) {
