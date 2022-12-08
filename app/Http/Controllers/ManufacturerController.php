@@ -29,6 +29,16 @@ class ManufacturerController extends Controller
     public function index(Request $request)
     {
         $validated = $request->validate([
+            'per_page' => 'integer|nullable|min:2|max:30',
+            'search' => 'string|nullable|min:1|max:30',
+            'sort' => [
+                'string',
+                Rule::in(['id', 'created_at', 'updated_at', 'name'])
+            ],
+            'order' => [
+                'string',
+                Rule::in(['asc', 'desc']),
+            ],
             'export' => [
                 Rule::in(['true', 'false', true, false])
             ]
@@ -36,13 +46,24 @@ class ManufacturerController extends Controller
 
         $manufacturer = Manufacturer::query();
 
+        if ($validated['search'] ?? false) {
+            // This separated so it doesn't colide with status check
+            $manufacturer = $manufacturer->where(function ($query) use ($validated) {
+                $query->Where('name', 'like', "%{$validated['search']}%");
+            });
+        }
+
+        if (($validated['sort'] ?? null) !== null) {
+            $manufacturer = $manufacturer->orderBy($validated['sort'], ($validated['order'] ?? 'asc'));
+        }
+
         if (
             ($validated['export'] ?? null === 'true') ||
             ($validated['export'] ?? null === true)
         ) {
             return (new GenericExport($manufacturer))->download('manufacturer.xlsx');
         }
-        return $manufacturer->get();
+        return $manufacturer->paginate($validated['per_page'] ?? 10);
     }
 
     /**
