@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\LogItemType;
+use App\Exports\LogExport;
 use App\Models\Log;
 use App\Http\Requests\StoreLogRequest;
 use App\Http\Requests\UpdateLogRequest;
@@ -47,6 +48,9 @@ class LogController extends Controller
             'item_id' => [
                 'integer',
                 'exclude_without:item_type'
+            ],
+            'export' => [
+                Rule::in(['true', 'false', true, false])
             ]
         ]);
 
@@ -62,6 +66,13 @@ class LogController extends Controller
 
         if (($validated['item_id'] ?? null) !== null) {
             $log = $log->where('item_id', $validated['item_id']);
+        }
+
+        if (
+            ($validated['export'] ?? null === 'true') ||
+            ($validated['export'] ?? null === true)
+        ) {
+            return (new LogExport($log))->download('log.xlsx');
         }
 
         return $log->paginate($validated['per_page'] ?? 10);

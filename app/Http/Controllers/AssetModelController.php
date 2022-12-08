@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\AssetModelExport;
 use App\Models\AssetModel;
 use App\Http\Requests\StoreAssetModelRequest;
 use App\Http\Requests\UpdateAssetModelRequest;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class AssetModelController extends Controller
 {
@@ -18,7 +20,10 @@ class AssetModelController extends Controller
     {
         $validated = $request->validate([
             'per_page' => 'integer|nullable|min:2|max:30',
-            'search' => 'string|nullable|min:1|max:30'
+            'search' => 'string|nullable|min:1|max:30',
+            'export' => [
+                Rule::in(['true', 'false', true, false])
+            ]
         ]);
 
         $model = AssetModel::query();
@@ -29,6 +34,13 @@ class AssetModelController extends Controller
                     ->orWhereRelation('category', 'name', 'like', "%{$validated['search']}%")
                     ->orWhereRelation('manufacturer', 'name', 'like', "%{$validated['search']}%");
             });
+        }
+
+        if (
+            ($validated['export'] ?? null === 'true') ||
+            ($validated['export'] ?? null === true)
+        ) {
+            return (new AssetModelExport($model))->download('asset_model.xlsx');
         }
 
         return $model->paginate($validated['per_page'] ?? 10);
