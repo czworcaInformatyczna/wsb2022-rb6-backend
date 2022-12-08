@@ -213,9 +213,8 @@ class AssetController extends Controller
      */
     public function destroy(Asset $asset)
     {
-        Storage::delete('asset_image\\' . $asset->id . '.' . $asset->image_extension);
         return response()->json([
-            "result" => "success"
+            "result" => $asset->delete()
         ]);
     }
 
