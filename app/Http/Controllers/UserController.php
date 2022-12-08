@@ -14,6 +14,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\File;
 
 use function PHPUnit\Framework\isNull;
 
@@ -261,10 +262,9 @@ class UserController extends Controller
                 400
             );
         }
-        $directory = 'public/avatars';
-
-        if (!Storage::exists($directory)) {
-            Storage::makeDirectory($directory);
+        $directory = storage_path('app/public/avatars');
+        if (!File::isDirectory($directory)) {
+            File::makeDirectory($directory);
         }
         if ($request->avatar == null) {
             User::where('id', auth()->user()->id)
