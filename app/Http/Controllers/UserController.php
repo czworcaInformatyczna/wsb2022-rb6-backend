@@ -261,6 +261,11 @@ class UserController extends Controller
                 400
             );
         }
+        $directory = 'public/avatars';
+
+        if (!Storage::exists($directory)) {
+            Storage::makeDirectory($directory);
+        }
         if ($request->avatar == null) {
             User::where('id', auth()->user()->id)
                 ->update([
