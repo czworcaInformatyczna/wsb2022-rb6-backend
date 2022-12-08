@@ -21,6 +21,14 @@ class AssetModelController extends Controller
         $validated = $request->validate([
             'per_page' => 'integer|nullable|min:2|max:30',
             'search' => 'string|nullable|min:1|max:30',
+            'sort' => [
+                'string',
+                Rule::in(['id', 'created_at', 'updated_at', 'name'])
+            ],
+            'order' => [
+                'string',
+                Rule::in(['asc', 'desc']),
+            ],
             'export' => [
                 Rule::in(['true', 'false', true, false])
             ]
@@ -34,6 +42,10 @@ class AssetModelController extends Controller
                     ->orWhereRelation('category', 'name', 'like', "%{$validated['search']}%")
                     ->orWhereRelation('manufacturer', 'name', 'like', "%{$validated['search']}%");
             });
+        }
+
+        if (($validated['sort'] ?? null) !== null) {
+            $model = $model->orderBy($validated['sort'], ($validated['order'] ?? 'asc'));
         }
 
         if (
