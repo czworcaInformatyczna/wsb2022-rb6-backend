@@ -31,6 +31,16 @@ class AssetCategoryController extends Controller
     public function index(Request $request)
     {
         $validated = $request->validate([
+            'per_page' => 'integer|nullable|min:2|max:30',
+            'search' => 'string|nullable|min:1|max:30',
+            'sort' => [
+                'string',
+                Rule::in(['id', 'created_at', 'updated_at', 'name'])
+            ],
+            'order' => [
+                'string',
+                Rule::in(['asc', 'desc']),
+            ],
             'export' => [
                 Rule::in(['true', 'false', true, false])
             ]
@@ -38,13 +48,23 @@ class AssetCategoryController extends Controller
 
         $assetCategory = AssetCategory::query();
 
+        if ($validated['search'] ?? false) {
+            $assetCategory = $assetCategory->where(function ($query) use ($validated) {
+                $query->Where('name', 'like', "%{$validated['search']}%");
+            });
+        }
+
+        if (($validated['sort'] ?? null) !== null) {
+            $assetCategory = $assetCategory->orderBy($validated['sort'], ($validated['order'] ?? 'asc'));
+        }
+
         if (
             ($validated['export'] ?? null === 'true') ||
             ($validated['export'] ?? null === true)
         ) {
             return (new GenericExport($assetCategory))->download('asset_category.xlsx');
         }
-        return $assetCategory->get();
+        return $assetCategory->paginate($validated['per_page'] ?? 10);
     }
 
     /**

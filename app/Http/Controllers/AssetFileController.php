@@ -34,6 +34,14 @@ class AssetFileController extends Controller
         $validated = $request->validate([
             'per_page' => 'integer|nullable|min:2|max:30',
             'search' => 'string|nullable|min:3|max:30',
+            'sort' => [
+                'string',
+                Rule::in(['id', 'created_at', 'updated_at', 'name', 'extension', 'size'])
+            ],
+            'order' => [
+                'string',
+                Rule::in(['asc', 'desc']),
+            ],
             'asset_id' => 'required|integer|exists:assets,id',
             'export' => [
                 Rule::in(['true', 'false', true, false])
@@ -42,8 +50,23 @@ class AssetFileController extends Controller
 
         $model = AssetFile::query();
 
+        if ($validated['search'] ?? false) {
+            // This separated so it doesn't colide with status check
+            $model = $model->where(function ($query) use ($validated) {
+                $query->Where('name', 'like', "%{$validated['search']}%")
+                    ->orWhere('extension', 'like', "%{$validated['search']}%")
+                    ->orWhere('notes', 'like', "%{$validated['search']}%")
+                    ->orWhereRelation('uploader', 'name', 'like', "%{$validated['search']}%")
+                    ->orWhereRelation('uploader', 'surname', 'like', "%{$validated['search']}%");
+            });
+        }
+
         if ($validated['asset_id'] ?? false) {
             $model = $model->where('asset_id', $validated['asset_id']);
+        }
+
+        if (($validated['sort'] ?? null) !== null) {
+            $model = $model->orderBy($validated['sort'], ($validated['order'] ?? 'asc'));
         }
 
         if (
