@@ -119,8 +119,11 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($id = null)
     {
+        if (is_null($id)) {
+            $id = Auth()->user()->id;
+        }
         return User::where('id', $id)->select(['id', 'name', 'surname', 'phone_number', 'email'])->with(['roles', 'assets', 'licences'])->first();
     }
 

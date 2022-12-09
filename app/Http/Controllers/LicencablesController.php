@@ -130,6 +130,11 @@ class LicencablesController extends Controller
                 'message' => 'There is no licence with id ' . $licenceId
             ], 400);
         }
+        if ($licence->reassignable == false) {
+            return response()->json([
+                'message' => 'This licence is not reassignable'
+            ]);
+        }
         if ($validated['model'] == 'user') {
             $licence->users()->detach($validated['model_id']);
             LicenceHistory::create([

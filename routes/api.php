@@ -61,6 +61,7 @@ Route::group(['middleware' => ['auth:sanctum', 'auth.token:RefreshAccessToken']]
     Route::patch('/user/massassign/{id}', [UserController::class, 'massAssignRoles']);
     Route::patch('/user/removerole/{id}', [UserController::class, 'removeRole']);
     Route::post('/user/edit', [UserController::class, 'setUserDetails']);
+    Route::get('/user/self', [UserController::class, 'show']);
     Route::apiResource('/user', UserController::class);
     Route::apiResource('/permission', PermissionController::class);
     Route::get('/role/users/{id}', [RoleController::class, 'rolesWithUsers']);
