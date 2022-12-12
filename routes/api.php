@@ -70,9 +70,8 @@ Route::group(['middleware' => ['auth:sanctum', 'auth.token:RefreshAccessToken']]
     Route::get('/avatar', [UserController::class, 'showAvatar']);
     Route::get('/avatar/{id}', [UserController::class, 'showAvatar']);
 
-
+    Route::apiResource('/licence_category', LicenceCategoryController::class);
     Route::prefix('licence')->group(function () {
-        Route::apiResource('/category', LicenceCategoryController::class);
         Route::apiResource('/', LicenceController::class);
         Route::get('/{id}', [LicenceController::class, 'show']);
         Route::patch('/{id}', [LicenceController::class, 'update']);
