@@ -7,6 +7,7 @@ use App\Models\Asset;
 use App\Models\Licence;
 use App\Models\User;
 use App\Models\LicenceHistory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -31,7 +32,7 @@ class LicencablesController extends Controller
             'search' => 'string|nullable|min:1|max:30',
             'sort' => [
                 'string',
-                Rule::in(['id', 'created_at', 'updated_at'])
+                Rule::in(['id', 'created_at', 'updated_at', 'name', 'email', 'slots'])
             ],
             'order' => [
                 'string',
@@ -39,7 +40,7 @@ class LicencablesController extends Controller
             ],
             'model' => [
                 'string',
-                Rule::in(['asset', 'user'])
+                Rule::in(['assets', 'users']),
             ],
             'model_id' => [
                 'integer',
@@ -49,25 +50,21 @@ class LicencablesController extends Controller
                 Rule::in(['true', 'false', true, false])
             ]
         ]);
-        $model = LicenceHistory::with(['user', 'licence']);
+        $model = Licence::query();
 
         if ($validated['search'] ?? false) {
             // This separated so it doesn't colide with status check
             $model = $model->where(function ($query) use ($validated) {
-                $query->whereRelation('licence', 'name', 'like', "%{$validated['search']}%")
-                    ->orWhereRelation('user', 'name', 'like', "%{$validated['search']}%")
-                    ->orWhereRelation('user', 'surname', 'like', "%{$validated['search']}%")
-                    ->orWhereRelation('user', 'email', 'like', "%{$validated['search']}%");
+                $query->where('name', 'like', "%{$validated['search']}%");
             });
         }
 
         if (($validated['sort'] ?? null) !== null) {
-            $model = $model->orderBy($validated['sort'], ($validated['order'] ?? 'asc'));
+            // $model = $model->orderBy($validated['sort'], ($validated['order'] ?? 'asc'));
         }
 
-        if ($validated['model'] ?? false && $validated['model_id'] ?? false) {
-            $model = $model->where('model', $validated['model']);
-            $model = $model->where('model_id', $validated['model_id']);
+        if ($validated['model_id'] ?? false) {
+            $model = $model->whereRelation($validated['model'], $validated['model'] . '.id', $validated['model_id']);
         }
 
         if (
