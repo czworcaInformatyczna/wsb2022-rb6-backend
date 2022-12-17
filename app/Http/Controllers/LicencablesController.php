@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\GenericExport;
 use App\Models\Asset;
 use App\Models\Licence;
 use App\Models\User;
 use App\Models\LicenceHistory;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class LicencablesController extends Controller
 {
@@ -20,6 +22,62 @@ class LicencablesController extends Controller
         $licence = Licence::with('users')->find($licenceId);
         $json = json_decode('{ "users":' . $licence->users . ', "assets":' . $licence->assets . ' }');
         return $json;
+    }
+
+    public function indexAll(Request $request)
+    {
+        $validated = $request->validate([
+            'per_page' => 'integer|nullable|min:2|max:30',
+            'search' => 'string|nullable|min:1|max:30',
+            'sort' => [
+                'string',
+                Rule::in(['id', 'created_at', 'updated_at'])
+            ],
+            'order' => [
+                'string',
+                Rule::in(['asc', 'desc']),
+            ],
+            'model' => [
+                'string',
+                Rule::in(['asset', 'user'])
+            ],
+            'model_id' => [
+                'integer',
+                'exclude_without:model'
+            ],
+            'export' => [
+                Rule::in(['true', 'false', true, false])
+            ]
+        ]);
+        $model = LicenceHistory::with(['user', 'licence']);
+
+        if ($validated['search'] ?? false) {
+            // This separated so it doesn't colide with status check
+            $model = $model->where(function ($query) use ($validated) {
+                $query->whereRelation('licence', 'name', 'like', "%{$validated['search']}%")
+                    ->orWhereRelation('user', 'name', 'like', "%{$validated['search']}%")
+                    ->orWhereRelation('user', 'surname', 'like', "%{$validated['search']}%")
+                    ->orWhereRelation('user', 'email', 'like', "%{$validated['search']}%");
+            });
+        }
+
+        if (($validated['sort'] ?? null) !== null) {
+            $model = $model->orderBy($validated['sort'], ($validated['order'] ?? 'asc'));
+        }
+
+        if ($validated['model'] ?? false && $validated['model_id'] ?? false) {
+            $model = $model->where('model', $validated['model']);
+            $model = $model->where('model_id', $validated['model_id']);
+        }
+
+        if (
+            ($validated['export'] ?? null === 'true') ||
+            ($validated['export'] ?? null === true)
+        ) {
+            return (new GenericExport($model))->download('licencable.xlsx');
+        }
+
+        return $model->paginate($validated['per_page'] ?? 10);
     }
 
     /**
