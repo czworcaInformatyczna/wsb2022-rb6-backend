@@ -82,6 +82,8 @@ Route::group(['middleware' => ['auth:sanctum', 'auth.token:RefreshAccessToken']]
         Route::apiResource('/{licenceId}/file', LicenceFileController::class);
     });
 
+    Route::get('licencables', [LicencablesController::class, 'indexAll']);
+
 
     Route::get('/permission1', [PermissionTestController::class, 'permission1'])->middleware(['permission:permission1']);
     Route::get('/permission2', [PermissionTestController::class, 'permission2'])->middleware(['permission:permission2']);
