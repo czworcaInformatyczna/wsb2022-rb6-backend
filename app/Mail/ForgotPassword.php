@@ -33,7 +33,7 @@ class ForgotPassword extends Mailable
             ->subject('Password recovery')
             ->markdown('mails.forgot')
             ->with([
-                'link' =>  env('APP_URL').'/resetpassword?email='.$this->email.'&token='.$this->recoveryToken
+                'newPassword' =>  $this->recoveryToken
             ]);
     }
 }

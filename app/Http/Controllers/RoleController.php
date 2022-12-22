@@ -6,18 +6,17 @@ use Illuminate\Http\Request;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Validator;
+use App\Exports\GenericExport;
 use App\Models\User;
+
+use function PHPSTORM_META\map;
 
 class RoleController extends Controller
 {
     function __construct()
     {
-        /*
-         $this->middleware('permission:role-list|role-create|role-edit|role-delete', ['only' => ['index','store']]);
-         $this->middleware('permission:role-create', ['only' => ['create','store']]);
-         $this->middleware('permission:role-edit', ['only' => ['edit','update']]);
-         $this->middleware('permission:role-delete', ['only' => ['destroy']]);
-         */
+        $this->middleware('permission:Show Roles')->only(['index', 'show']);
+        $this->middleware('permission:Manage Roles')->only(['store', 'update', 'destroy', 'rolesWithUsers']);
     }
     /**
      * Display a listing of the resource.
@@ -30,24 +29,31 @@ class RoleController extends Controller
             'per_page' => 'integer|nullable|min:2|max:100',
             'search' => 'string|nullable|min:1|max:30',
             'sort' => 'nullable|in:id,name',
-            'order' => 'nullable|in:asc,desc'
+            'order' => 'nullable|in:asc,desc',
+            'export' => 'boolean'
         ]);
 
-        $asset = Role::query()->select('id', 'name')->with(['permissions' => function ($a) {
+        $roles = Role::query()->select('id', 'name');
+
+        if ($request->export) {
+            return (new GenericExport($roles))->download('roles.xlsx');
+        }
+
+        $roles = $roles->with(['permissions' => function ($a) {
             $a->select('id', 'name');
         }]);
 
 
         if ($request->search) {
-            $asset = $asset->where(function ($query) use ($validated) {
+            $roles = $roles->where(function ($query) use ($validated) {
                 $query->Where('id', 'like', "%{$validated['search']}%")
                     ->orWhere('name', 'like', "%{$validated['search']}%")
                     ->orWhereRelation('permissions', 'name', 'like', "%{$validated['search']}%");
             });
         }
 
-        $asset = $asset->orderBy($validated['sort'] ?? 'id', ($validated['order'] ?? 'asc'));
-        return $asset->paginate($validated['per_page'] ?? 25);
+        $roles = $roles->orderBy($validated['sort'] ?? 'id', ($validated['order'] ?? 'asc'));
+        return $roles->paginate($validated['per_page'] ?? 25);
     }
 
     /**
@@ -173,6 +179,12 @@ class RoleController extends Controller
         }
 
         $role = Role::find($id);
+        if ($role->name == 'Super Admin') {
+            return response()->json([
+                "message" => "This role can't be edited"
+            ]);
+        }
+
         $role->name = $request->input('name');
         $role->save();
 
@@ -191,7 +203,13 @@ class RoleController extends Controller
      */
     public function destroy($id)
     {
-        Role::find($id)->delete();
+        $role =  Role::find($id);
+        if ($role->name == 'Super Admin') {
+            return response()->json([
+                "message" => "This role can't be deleted"
+            ]);
+        }
+        $role->delete();
 
         return response()->json([
             'message' => 'Role removed successfully'

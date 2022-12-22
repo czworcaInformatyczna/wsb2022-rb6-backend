@@ -29,6 +29,8 @@ class AssetController extends Controller
      */
     public function __construct()
     {
+        $this->middleware('permission:Show Assets')->only(['index', 'show', 'downloadImage', 'qr_code']);
+        $this->middleware('permission:Manage Assets')->only(['store', 'update', 'destroy', 'storeImage', 'destroyImage', 'parseImage']);
         $this->authorizeResource(Asset::class, 'asset');
     }
     /**

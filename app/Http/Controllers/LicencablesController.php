@@ -13,6 +13,11 @@ use Illuminate\Validation\Rule;
 
 class LicencablesController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission:Show Licences')->only('index');
+        $this->middleware('permission:Manage Licences')->only(['store', 'update']);
+    }
     /**
      * Display a listing of the resource.
      *
@@ -21,8 +26,13 @@ class LicencablesController extends Controller
     public function index($licenceId)
     {
         $licence = Licence::with('users')->find($licenceId);
-        $json = json_decode('{ "users":' . $licence->users . ', "assets":' . $licence->assets . ' }');
-        return $json;
+        if ($licence) {
+            $json = json_decode('{ "users":' . $licence->users . ', "assets":' . $licence->assets . ' }');
+            return $json;
+        }
+        return response()->json([
+            'message' => 'There is no licence with id = ' . $licenceId
+        ]);
     }
 
     public function indexAll(Request $request)
