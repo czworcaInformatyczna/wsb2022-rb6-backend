@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\LicenceFileExport;
 use Illuminate\Http\Request;
 use App\Models\LicenceFile;
 use App\Models\LicenceHistory;
@@ -11,6 +12,12 @@ use Illuminate\Support\Facades\Auth;
 
 class LicenceFileController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission:Show Licences')->only(['index', 'show', 'download']);
+        $this->middleware('permission:Manage Licences')->only(['store', 'update']);
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -21,11 +28,17 @@ class LicenceFileController extends Controller
         $validated = $request->validate([
             'per_page' => 'integer|nullable|min:2|max:30',
             'search' => 'string|nullable|min:3|max:30',
+            'export' => 'boolean'
         ]);
 
         $licenceFile = LicenceFile::query();
         $licenceFile->where('licence_id', $licenceId)
-            ->with('uploader');
+            ->with('uploader')
+            ->with('licence');
+
+        if ($request->export) {
+            return (new LicenceFileExport($licenceFile))->download('licenceFiles.xlsx');
+        }
 
         return $licenceFile->paginate($validated['per_page'] ?? 10);
     }

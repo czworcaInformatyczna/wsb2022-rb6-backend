@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\GenericExport;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Permission;
 
@@ -9,20 +10,23 @@ class PermissionController extends Controller
 {
     function __construct()
     {
-        /*
-         $this->middleware('permission:permission-list|permission-create|permission-edit|permission-delete', ['only' => ['index','store']]);
-         $this->middleware('permission:permission-create', ['only' => ['create','store']]);
-         $this->middleware('permission:permission-edit', ['only' => ['edit','update']]);
-         $this->middleware('permission:permission-delete', ['only' => ['destroy']]);
-         */
+        $this->middleware('permission:Show Permissions')->only('index');
     }
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return Permission::select(['id', 'name'])->get();
+        $request->validate([
+            'export' => 'boolean'
+        ]);
+        $permissions = Permission::query()->select(['id', 'name'])->orderBy('id', 'asc');
+
+        if ($request->export) {
+            return (new GenericExport($permissions))->download('permissions.xlsx');
+        }
+        return $permissions->get();
     }
 }

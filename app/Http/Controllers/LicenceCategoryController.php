@@ -3,19 +3,32 @@
 namespace App\Http\Controllers;
 
 use App\Models\LicenceCategory;
-use App\Models\LicenceHistory;
+use App\Exports\LicenceCategoryExport;
 use Illuminate\Http\Request;
 
 class LicenceCategoryController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission:Show Licences')->only(['index', 'show']);
+        $this->middleware('permission:Manage Licences')->only(['store', 'update', 'destroy']);
+    }
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return LicenceCategory::select('id', 'name')
+        $request->validate([
+            'export' => 'boolean'
+        ]);
+        $licenceCategory = LicenceCategory::query()
+            ->select('id', 'name');
+        if ($request->export) {
+            return (new LicenceCategoryExport($licenceCategory))->download('licenceCategories.xlsx');
+        }
+        return $licenceCategory
             ->paginate(25);
     }
 

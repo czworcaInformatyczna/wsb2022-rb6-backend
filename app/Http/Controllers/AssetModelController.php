@@ -11,6 +11,11 @@ use Illuminate\Validation\Rule;
 
 class AssetModelController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission:Show Assets')->only(['index', 'show']);
+        $this->middleware('permission:Manage Assets')->only(['store', 'update', 'destroy']);
+    }
     /**
      * Display a listing of the resource.
      *

@@ -16,30 +16,32 @@ use Carbon\Carbon;
 
 class SanctumController extends Controller
 {
-    public function register(Request $request){
+    public function register(Request $request)
+    {
 
         $validator = Validator::make($request->all(), [
             'name' => 'required|string',
             'email' => 'required|string|email|unique:users,email',
             'password' => 'required|string|confirmed'
         ]);
-        if($validator->fails()){
+        if ($validator->fails()) {
             return response()->json(
-                ['errors' => $validator->errors()]
-            ,400);
+                ['errors' => $validator->errors()],
+                400
+            );
         }
         $user = User::create([
             'name' => $request['name'],
             'email' => $request['email'],
             'password' => Hash::make($request['password'])
         ]);
-        
+
         app('App\Http\Controllers\Api\CookiesController')->createCookie($user->id);
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             'name' => $user->name,
-            'email' => $user->email, 
+            'email' => $user->email,
             'access_token' => $token,
             'token_type' => 'Bearer',
             'theme_id' => $user->cookie->theme->id,
@@ -53,14 +55,15 @@ class SanctumController extends Controller
             'email' => 'required',
             'password' => 'required'
         ]);
-        if($validator->fails()){
+        if ($validator->fails()) {
             return response()->json(
-                ['errors' => $validator->errors()]
-            ,400);
+                ['errors' => $validator->errors()],
+                400
+            );
         }
         if (!Auth::attempt($request->only('email', 'password'))) {
             return response()->json([
-            'message' => 'Invalid login details'
+                'message' => 'Invalid login details'
             ], 401);
         }
         $user = User::where('email', $request['email'])->firstOrFail();
@@ -71,7 +74,7 @@ class SanctumController extends Controller
         app('App\Http\Controllers\Api\CookiesController')->createCookie($user->id);
         return response()->json([
             'name' => $user->name,
-            'email' => $user->email, 
+            'email' => $user->email,
             'access_token' => $token,
             'token_type' => 'Bearer',
             'theme_id' => $user->cookie->theme->id,
@@ -80,48 +83,17 @@ class SanctumController extends Controller
         ]);
     }
 
-    public function login2(Request $request)
+    public function changePassword(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'email' => 'required',
-            'password' => 'required'
-        ]);
-        if($validator->fails()){
-            return response()->json(
-                ['errors' => $validator->errors()]
-            ,400);
-        }
-        if (!Auth::attempt($request->only('email', 'password'))) {
-            return response()->json([
-            'message' => 'Invalid login details'
-            ], 401);
-        }
-        $user = User::where('email', $request['email'])->firstOrFail();
-
-        auth()->user()->tokens()->delete();
-
-        $token = $user->createToken('auth_token')->plainTextToken;
-        app('App\Http\Controllers\Api\CookiesController')->createCookie($user->id);
-        return response()->json([
-            'name' => $user->name,
-            'email' => $user->email, 
-            'access_token' => $token,
-            'token_type' => 'Bearer',
-            'theme_id' => $user->cookie->theme->id,
-            'language_id' => $user->cookie->language->id,
-            'isActive' => $this->isActive($user)
-        ]);
-    }
-
-    public function changePassword(Request $request){
 
         $validator = Validator::make($request->all(), [
             'password' => 'required|string|confirmed'
         ]);
-        if($validator->fails()){
+        if ($validator->fails()) {
             return response()->json(
-                ['errors' => $validator->errors()]
-            ,400);
+                ['errors' => $validator->errors()],
+                400
+            );
         }
         $request->user()['password'] = Hash::make($request['password']);
         $request->user()->save();
@@ -140,17 +112,26 @@ class SanctumController extends Controller
         ];
     }
 
-    public function forgotPassword(Request $request){
+    public function forgotPassword(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'email' => 'required|email'
         ]);
-        if($validator->fails()){
+        if ($validator->fails()) {
             return response()->json(
-                ['errors' => $validator->errors()]
-            ,400);
+                ['errors' => $validator->errors()],
+                400
+            );
         }
-
-        if(User::where('email', $request->email)->first()){
+        $user = User::where('email', $request->email)->first();
+        if ($user) {
+            $password = str::random();
+            $user->update([
+                'password' => Hash::make($password)
+            ]);
+            Mail::to($request->email)
+                ->send(new ForgotPassword($request->email, $password));
+            /*
             $token = Str::random(30);
             PasswordReset::where('email', $request->email)->delete();
             PasswordReset::create([
@@ -160,35 +141,38 @@ class SanctumController extends Controller
             ]);
             Mail::to($request->email)
                 ->send(new ForgotPassword($request->email, $token));
+            */
         }
         return response([
             'message' => 'Email has been send'
         ], 200);
     }
 
-    public function resetPassword(Request $request){
+    public function resetPassword(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'token' => 'required|string',
             'email' => 'required|string|email',
             'password' => 'required|string|confirmed'
         ]);
-        if($validator->fails()){
+        if ($validator->fails()) {
             return response()->json(
-                ['errors' => $validator->errors()]
-            ,400);
+                ['errors' => $validator->errors()],
+                400
+            );
         }
         $passwordReset = PasswordReset::where('email', $request->email)->first();
-        if($passwordReset == NULL){
+        if ($passwordReset == NULL) {
             return response([
                 'message' => 'Bad data'
             ], 400);
         }
-        if(!Carbon::parse($passwordReset->created_at)->addDays(1)>Carbon::now()){
+        if (!Carbon::parse($passwordReset->created_at)->addDays(1) > Carbon::now()) {
             return response([
                 'message' => 'Bad data'
             ], 400);
         }
-        if(!Hash::check($request->token, $passwordReset->token)){
+        if (!Hash::check($request->token, $passwordReset->token)) {
             return response([
                 'message' => 'Bad data'
             ], 400);
@@ -197,11 +181,12 @@ class SanctumController extends Controller
         PasswordReset::where('email', $request->email)->delete();
         return response([
             'message' => 'Success'
-        ],200);
+        ], 200);
     }
 
-    public function isActive(User $user){
-        if(is_null($user->email_verified_at)){
+    public function isActive(User $user)
+    {
+        if (is_null($user->email_verified_at)) {
             return false;
         }
         return true;

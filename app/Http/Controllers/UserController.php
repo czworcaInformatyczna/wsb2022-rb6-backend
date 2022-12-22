@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\UserExport;
 use App\Mail\FirstLoginCredentials;
 use Illuminate\Http\Request;
 use App\Models\User;
@@ -25,13 +26,20 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    public function __construct()
+    {
+        $this->middleware('permission:Show Users')->only(['index', 'show', 'showAvatar', 'activateAccount', 'setUserDetails', 'removeAvatar']);
+        $this->middleware('permission:Manage Users')->only(['create', 'update', 'destroy', 'removeRole', 'massAssignRoles']);
+    }
+
     public function index(Request $request)
     {
         $validated = $request->validate([
             'role' => 'string|nullable',
             'per_page' => 'integer|max:100|nullable',
             'sort' => 'in:id,name,surname,email',
-            'order' => 'in:asc,desc'
+            'order' => 'in:asc,desc',
+            'export' => 'boolean'
         ]);
 
         $user = User::query()
@@ -48,6 +56,10 @@ class UserController extends Controller
             });
         }
 
+        if ($request->export) {
+            return (new UserExport($user))->download('users.xlsx');
+        }
+
         $response = $user->paginate($validated['per_page'] ?? 25)->toArray();
 
         foreach ($response['data'] as $key => $value) {
@@ -59,16 +71,6 @@ class UserController extends Controller
             }
         }
         return $response;
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
     }
 
     /**
@@ -125,17 +127,6 @@ class UserController extends Controller
             $id = Auth()->user()->id;
         }
         return User::where('id', $id)->select(['id', 'name', 'surname', 'phone_number', 'email'])->with(['roles', 'assets', 'licences'])->first();
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
     }
 
     /**
@@ -356,7 +347,6 @@ class UserController extends Controller
         ]);
 
         $role = Role::where('name', $id)->first();
-
         if (!$role) {
             return response()->json([
                 'message' => 'Role with id ' . $id . ' does not exist'

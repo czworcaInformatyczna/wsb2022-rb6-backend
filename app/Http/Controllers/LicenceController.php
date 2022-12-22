@@ -7,20 +7,34 @@ use App\Models\LicenceHistory;
 use App\Models\Licence;
 use App\Models\LicenceFile;
 use App\Models\User;
+use App\Exports\LicenceExport;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 
 class LicenceController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission:Show Licences')->only(['index', 'show', 'showHistory']);
+        $this->middleware('permission:Manage Licences')->only(['edit', 'update', 'destroy']);
+    }
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return Licence::with('manufacturer')
-            ->with('category')
+        $request->validate([
+            'export' => 'boolean'
+        ]);
+        $licence = Licence::query()
+            ->with('manufacturer')
+            ->with('category');
+        if ($request->export) {
+            return (new LicenceExport($licence))->download('licences.xlsx');
+        }
+        return $licence
             ->paginate(25);
     }
 
