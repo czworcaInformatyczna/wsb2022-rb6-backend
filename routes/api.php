@@ -57,6 +57,7 @@ Route::group(['middleware' => ['auth:sanctum', 'auth.token:RefreshAccessToken']]
     Route::PATCH('/languages', [CookiesController::class, 'patchLanguages']);
     Route::apiResource('asset_category', AssetCategoryController::class);
     Route::apiResource('asset_model', AssetModelController::class);
+    Route::get('/user/permissions', [UserController::class, 'showPermissions']);
     Route::patch('/user/massassign/{id}', [UserController::class, 'massAssignRoles']);
     Route::patch('/user/removerole/{id}', [UserController::class, 'removeRole']);
     Route::post('/user/edit', [UserController::class, 'setUserDetails']);
