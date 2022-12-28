@@ -83,11 +83,6 @@ Route::group(['middleware' => ['auth:sanctum', 'auth.token:RefreshAccessToken']]
 
     Route::get('licencables', [LicencablesController::class, 'indexAll']);
 
-
-    Route::get('/permission1', [PermissionTestController::class, 'permission1'])->middleware(['permission:permission1']);
-    Route::get('/permission2', [PermissionTestController::class, 'permission2'])->middleware(['permission:permission2']);
-    Route::get('/permission3', [PermissionTestController::class, 'permission3'])->middleware(['permission:permission3']);
-
     Route::apiResource('manufacturer', ManufacturerController::class);
 
     Route::delete('asset/{asset}/image', [AssetController::class, 'destroyImage']);
