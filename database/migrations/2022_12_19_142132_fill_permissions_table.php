@@ -27,7 +27,8 @@ return new class extends Migration
         foreach ($permissions as $permission) {
             if (!Permission::where('name', $permission)->first()) {
                 Permission::create([
-                    'name' => $permission
+                    'name' => $permission,
+                    'guard_name' => 'web'
                 ]);
             }
         }
