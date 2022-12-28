@@ -37,5 +37,21 @@ class PermissionSeeder extends Seeder
                 ]);
             }
         }
+
+        foreach (Permission::all() as $permissionInDatabase) {
+            if (!$this->checkIfIsInArray($permissionInDatabase->name, $permissions)) {
+                $permissionInDatabase->delete();
+            }
+        }
+    }
+
+    public function checkIfIsInArray($checked, $array)
+    {
+        foreach ($array as $value) {
+            if ($checked == $value) {
+                return true;
+            }
+        }
+        return false;
     }
 }
