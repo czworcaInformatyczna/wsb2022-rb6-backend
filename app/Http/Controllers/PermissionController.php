@@ -10,7 +10,7 @@ class PermissionController extends Controller
 {
     function __construct()
     {
-        $this->middleware('permission:Show Permissions')->only('index');
+        $this->middleware('permission:Show Roles')->only('index');
     }
     /**
      * Display a listing of the resource.

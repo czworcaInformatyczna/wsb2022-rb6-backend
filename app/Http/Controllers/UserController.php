@@ -29,7 +29,6 @@ class UserController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('permission:Show Users')->only(['index', 'show', 'showAvatar', 'activateAccount', 'setUserDetails', 'removeAvatar']);
         $this->middleware('permission:Manage Users')->only(['create', 'update', 'destroy', 'removeRole', 'massAssignRoles']);
     }
 

@@ -15,18 +15,13 @@ return new class extends Migration
     public function up()
     {
         $permissions = [
-            'Show Roles',
             'Manage Roles',
-            'Show Users',
             'Manage Users',
-            'Show Licences',
             'Manage Licences',
-            'Show Assets',
             'Manage Assets',
-            'Show Categories',
-            'Show Logs',
-            'Show Manufacturers',
+            'Manage Categories',
             'Manage Manufacturers',
+            'Manage Components'
         ];
 
         foreach ($permissions as $permission) {
@@ -46,18 +41,13 @@ return new class extends Migration
     public function down()
     {
         $permissions = [
-            'Show Roles',
             'Manage Roles',
-            'Show Users',
             'Manage Users',
-            'Show Licences',
             'Manage Licences',
-            'Show Assets',
             'Manage Assets',
-            'Show Categories',
-            'Show Logs',
-            'Show Manufacturers',
+            'Manage Categories',
             'Manage Manufacturers',
+            'Manage Components'
         ];
 
         foreach ($permissions as $permission) {

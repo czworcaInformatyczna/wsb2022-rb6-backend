@@ -15,8 +15,7 @@ class RoleController extends Controller
 {
     function __construct()
     {
-        $this->middleware('permission:Show Roles')->only(['index', 'show']);
-        $this->middleware('permission:Manage Roles')->only(['store', 'update', 'destroy', 'rolesWithUsers']);
+        $this->middleware('permission:Manage Roles')->only(['index', 'show', 'store', 'update', 'destroy', 'rolesWithUsers']);
     }
     /**
      * Display a listing of the resource.

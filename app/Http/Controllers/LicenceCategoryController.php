@@ -10,7 +10,6 @@ class LicenceCategoryController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('permission:Show Licences')->only(['index', 'show']);
         $this->middleware('permission:Manage Licences')->only(['store', 'update', 'destroy']);
     }
     /**

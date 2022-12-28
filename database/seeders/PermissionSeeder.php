@@ -16,24 +16,20 @@ class PermissionSeeder extends Seeder
     public function run()
     {
         $permissions = [
-            'Show Roles',
             'Manage Roles',
-            'Show Users',
             'Manage Users',
-            'Show Licences',
             'Manage Licences',
-            'Show Assets',
             'Manage Assets',
-            'Show Categories',
-            'Show Logs',
-            'Show Manufacturers',
+            'Manage Categories',
             'Manage Manufacturers',
+            'Manage Components'
         ];
 
         foreach ($permissions as $permission) {
             if (!Permission::where('name', $permission)->first()) {
                 Permission::create([
-                    'name' => $permission
+                    'name' => $permission,
+                    'guard_name' => 'web'
                 ]);
             }
         }

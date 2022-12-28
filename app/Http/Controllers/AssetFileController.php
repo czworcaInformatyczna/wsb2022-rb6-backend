@@ -21,7 +21,6 @@ class AssetFileController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('permission:Show Assets')->only(['index', 'show']);
         $this->middleware('permission:Manage Assets')->only(['store', 'update', 'destroy']);
         $this->authorizeResource(AssetFile::class, 'asset_file');
     }

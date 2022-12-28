@@ -14,10 +14,6 @@ use Nette\NotImplementedException;
 
 class LogController extends Controller
 {
-    public  function __construct()
-    {
-        $this->middleware('permission:Show Logs')->only('index');
-    }
     /**
      * Display a listing of the resource.
      *

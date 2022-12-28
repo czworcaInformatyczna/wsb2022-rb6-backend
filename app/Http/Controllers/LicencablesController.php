@@ -15,7 +15,6 @@ class LicencablesController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('permission:Show Licences')->only('index');
         $this->middleware('permission:Manage Licences')->only(['store', 'update']);
     }
     /**
