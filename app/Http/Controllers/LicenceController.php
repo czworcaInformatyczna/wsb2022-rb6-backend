@@ -15,7 +15,6 @@ class LicenceController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('permission:Show Licences')->only(['index', 'show', 'showHistory']);
         $this->middleware('permission:Manage Licences')->only(['edit', 'update', 'destroy']);
     }
     /**

@@ -20,29 +20,26 @@ class SearchController extends Controller
         $user = Auth()->user();
 
         $response = collect();
-        if (($user->hasDirectPermission('Show Assets')) || ($user->hasRole('Super Admin'))) {
-            $assets = Asset::where('name', 'like', "%{$validated['searched']}%")->get();
-            foreach ($assets as $key => $value) {
-                $assets[$key]['model'] = 'asset';
-            }
-            $response = $response->merge($assets);
+
+        $assets = Asset::where('name', 'like', "%{$validated['searched']}%")->get();
+        foreach ($assets as $key => $value) {
+            $assets[$key]['model'] = 'asset';
         }
-        if (($user->hasDirectPermission('Show Licences')) || ($user->hasRole('Super Admin'))) {
-            $licences = Licence::where('name', 'like', "%{$validated['searched']}%")->get();
-            foreach ($licences as $key => $value) {
-                $licences[$key]['model'] = 'licence';
-            }
-            $response = $response->merge($licences);
+
+        $response = $response->merge($assets);
+        $licences = Licence::where('name', 'like', "%{$validated['searched']}%")->get();
+        foreach ($licences as $key => $value) {
+            $licences[$key]['model'] = 'licence';
         }
-        if (($user->hasDirectPermission('Show Users')) || ($user->hasRole('Super Admin'))) {
-            $users = User::where('name', 'like', "%{$validated['searched']}%")
-                ->orWhere('surname', 'like', "%{$validated['searched']}%")
-                ->get();
-            foreach ($users as $key => $value) {
-                $users[$key]['model'] = 'user';
-            }
-            $response = $response->merge($users);
+        $response = $response->merge($licences);
+
+        $users = User::where('name', 'like', "%{$validated['searched']}%")
+            ->orWhere('surname', 'like', "%{$validated['searched']}%")
+            ->get();
+        foreach ($users as $key => $value) {
+            $users[$key]['model'] = 'user';
         }
+        $response = $response->merge($users);
 
         return $response->sortBy('name')->splice(0, 10);
     }

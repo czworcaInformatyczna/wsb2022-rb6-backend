@@ -14,7 +14,6 @@ class LicenceFileController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('permission:Show Licences')->only(['index', 'show', 'download']);
         $this->middleware('permission:Manage Licences')->only(['store', 'update']);
     }
 

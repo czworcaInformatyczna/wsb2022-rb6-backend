@@ -19,7 +19,6 @@ class ManufacturerController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('permission:Show Manufacturers')->only(['index', 'show']);
         $this->middleware('permission:Manage Manufacturers')->only(['store', 'update', 'destroy']);
         $this->authorizeResource(Manufacturer::class, 'manufacturer');
     }
