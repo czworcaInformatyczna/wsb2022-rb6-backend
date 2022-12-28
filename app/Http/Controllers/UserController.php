@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\File;
+use Spatie\Permission\Models\Permission;
 
 use function PHPUnit\Framework\isNull;
 
@@ -360,5 +361,37 @@ class UserController extends Controller
         return response()->json([
             'message' => 'Success'
         ]);
+    }
+
+    public function showPermissions()
+    {
+        $user = auth()->user();
+        $permissions = [];
+        foreach ($user->roles as $role) {
+            if ($role->name == "Super Admin") {
+                foreach (Permission::all() as $permission) {
+                    if (!$this->isPermissionInArray($permissions, $permission->name)) {
+                        array_push($permissions, $permission->name);
+                    }
+                }
+            }
+            foreach ($role->permissions as $permission) {
+                if (!$this->isPermissionInArray($permissions, $permission->name)) {
+                    array_push($permissions, $permission->name);
+                }
+            }
+        }
+        return $permissions;
+    }
+
+    private function isPermissionInArray($permissionsArray, $newPermission)
+    {
+        $resoult = false;
+        foreach ($permissionsArray as $permission) {
+            if ($permission == $newPermission) {
+                $resoult = true;
+            }
+        }
+        return $resoult;
     }
 }
