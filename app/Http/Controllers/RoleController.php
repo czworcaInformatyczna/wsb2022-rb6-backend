@@ -155,7 +155,14 @@ class RoleController extends Controller
             'name' => 'required',
             'permissions' => 'array',
         ]);
-        if (Role::where('id', $id)->select('name')->first()->name != $request->name) {
+
+        $role = Role::find($id);
+        if ($role == null) {
+            return response()->json([
+                'message' => 'There is no role with id ' . $id
+            ]);
+        }
+        if ($role->name != $request->name) {
             if (Role::where('name', $request->name)->first()) {
                 return response()->json([
                     'error' => 'Role ' . $request->name . ' already exists'
@@ -177,7 +184,7 @@ class RoleController extends Controller
             ]);
         }
 
-        $role = Role::find($id);
+
         if ($role->name == 'Super Admin') {
             return response()->json([
                 "message" => "This role can't be edited"
@@ -221,11 +228,15 @@ class RoleController extends Controller
             'per_page' => 'integer|nullable|max:100'
         ]);
 
-        $role = Role::select('name')->find($id)->toArray();
+        $role = Role::select('name')->find($id);
+        if ($role == null) {
+            return response()->json([
+                'message' => 'There is no role with id ' . $id
+            ]);
+        }
         $users = User::select('id', 'name', 'surname', 'phone_number', 'avatar', 'email')->whereHas("roles", function ($q) use ($role) {
-            $q->where("name", $role['name']);
+            $q->where("name", $role->name);
         })->paginate($validated['per_page'] ?? 25);
-        //$role['users'] = $users;
         return $users;
     }
 }
