@@ -21,6 +21,7 @@ return new class extends Migration
             'Manage Assets',
             'Manage Categories',
             'Manage Manufacturers',
+            'Manage Models',
             'Manage Components'
         ];
 
@@ -48,6 +49,7 @@ return new class extends Migration
             'Manage Assets',
             'Manage Categories',
             'Manage Manufacturers',
+            'Manage Models',
             'Manage Components'
         ];
 

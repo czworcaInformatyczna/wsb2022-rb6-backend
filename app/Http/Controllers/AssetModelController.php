@@ -13,7 +13,7 @@ class AssetModelController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('permission:Manage Assets')->only(['store', 'update', 'destroy']);
+        $this->middleware('permission:Manage Models')->only(['store', 'update', 'destroy']);
     }
     /**
      * Display a listing of the resource.

@@ -22,6 +22,7 @@ class PermissionSeeder extends Seeder
             'Manage Assets',
             'Manage Categories',
             'Manage Manufacturers',
+            'Manage Models',
             'Manage Components'
         ];
 
